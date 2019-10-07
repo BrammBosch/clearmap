@@ -3,20 +3,23 @@ import multiprocessing
 import re
 import shutil
 import sys
+import threading
 import tkinter
 import tkinter as tk
 import tkinter.ttk as ttk
+import traceback
 from tkinter import simpledialog, messagebox
+
+import psutil
 from tkfilebrowser import askopendirname, askopenfilename
 
 from ClearMap.Scripts.Templates.split_CSV import write_landmarks_to_files
-def manual(pathClearMap):
+def manual(pathClearMap,root):
     rootMA = tk.Tk()
 
     rootMA.title("Clearmap")
     style = ttk.Style(rootMA)
     style.theme_use("clam")
-
 
 
     tk.Label(rootMA, text="""Open the "autofluo_resampled.tif file and the "template_25.tif" file in ImageJ. 
@@ -33,14 +36,29 @@ Landmark procedure:
 Go to the landmarks window -> File -> Export landmarks. """).grid(padx=4, pady=4, sticky='ew')
     findLandmarksButton = tk.Button(rootMA, text="Search for the landmarks file", command=lambda :[findLandmarks(rootMA,pathClearMap),rootMA.destroy()])
     findLandmarksButton.grid(padx=4, pady=4, sticky='ew')
-    rootMA.wait_window(rootMA)
-    rootMA = tk.Toplevel()
+    a = True
+    try:
+        def ask_quit():
+            if messagebox.askokcancel("Quit", "Do you want to quit now?"):
+                rootMA.destroy()
+                root.destroy()
+                raise FileNotFoundError
+    except FileNotFoundError:
+        a = False
 
-def imageJ():
-    print("TODO")
+    rootMA.protocol("WM_DELETE_WINDOW", ask_quit)
+    rootMA.wait_window(rootMA)
+
+
+    rootMA = tk.Toplevel()
+    return a
 
 def findLandmarks(rootMA,pathClearMap):
     landmarksDir = askopenfilename(parent=rootMA, title="Select landmarks file")
     pathOutput = pathClearMap + "ClearMap/clearmap_preset_folder/output/landmarks.csv"
-    shutil.copyfile(landmarksDir,pathOutput)
-    write_landmarks_to_files(pathClearMap)
+    try:
+        shutil.copyfile(landmarksDir,pathOutput)
+        write_landmarks_to_files(pathClearMap)
+    except FileNotFoundError:
+        messagebox.showinfo("ERROR","An error occured while looking for the landmarks file")
+

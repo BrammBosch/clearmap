@@ -1,16 +1,13 @@
 import glob, os
-import multiprocessing
 import re
 import shutil
-import subprocess
 import sys
-import threading
-import tkinter
 import json
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import simpledialog, messagebox
-from tkfilebrowser import askopendirname
+from tkfilebrowser import askopendirname, askopenfilename
+from ClearMap.Scripts.Templates.split_CSV import write_landmarks_to_files
 
 from ClearMap.gui.create_parameter import create_file_parameter
 from ClearMap.gui.create_process import create_file_process
@@ -22,7 +19,9 @@ style.theme_use("clam")
 
 pathToGui = os.path.abspath(__file__)
 pathClearMap = pathToGui.replace("ClearMap/gui/tkinter_gui.py", "")
-#sys.stdout = open(pathClearMap + "ClearMap/myprog.log", "w+")
+data = {}
+
+
 
 def choose_dirs():
     """
@@ -77,22 +76,16 @@ def choose_dirs():
             pass
         autoFluoDir += "/" + fileAutoFluo
         proteinDir += "/" + fileProtein
-
-
-        data = {}
         data['autoFluoDir'] = autoFluoDir
         data['proteinDir'] = proteinDir
         data['atlasDir'] = atlasDir
         data['baseDir'] = baseDir
-        data['fromSettings'] = False
+        data['fromImport'] = False
 
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w+") as outputFile:
             json.dump(data, outputFile)
 
-        create_files()
-        runButton['state'] = 'normal'
-        exportButton['state'] = 'normal'
-        settingsButton['state'] = 'normal'
+        runButtonMain['state'] = 'normal'
     except FileNotFoundError:
         pass
     except UnboundLocalError:
@@ -101,8 +94,6 @@ def choose_dirs():
         messagebox.showinfo("ERROR", "The autofluo folder and the protein folder seem to be same")
     except sameFolderAtlas:
         messagebox.showinfo("ERROR", "The autofluo folder or the protein folder seem to be same as the atlas folder")
-
-
 
 
 def use_presets():
@@ -143,20 +134,17 @@ def use_presets():
         pass
     pathAutoFluo += "/" + fileAutoFluo
     pathProtein += "/" + fileProtein
-    data = {}
 
     data['autoFluoDir'] = pathAutoFluo
     data['proteinDir'] = pathProtein
     data['atlasDir'] = pathAtlas
     data['baseDir'] = pathBaseDirectory
-    data['fromSettings'] = False
+    data['fromImport'] = False
 
     with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w+") as outputFile:
         json.dump(data, outputFile)
-    create_files()
-    runButton['state'] = 'normal'
-    exportButton['state'] = 'normal'
-    settingsButton['state'] = 'normal'
+
+    runButtonMain['state'] = 'normal'
 
 
 def create_files():
@@ -196,6 +184,7 @@ def importer():
     directory
     :return:
     """
+
     scriptsFolder = askopendirname(parent=root, title="Select scripts",
                                    initialdir=pathClearMap + "ClearMap/Scripts/exports/")
     nameFolder = scriptsFolder.replace(pathClearMap + "ClearMap/Scripts/exports/", "")
@@ -203,90 +192,41 @@ def importer():
     shutil.copy(scriptsFolder + "/process_template.py", pathClearMap + "ClearMap/Scripts/work_dir/")
     shutil.copy(scriptsFolder + "/savedSettings.txt", pathClearMap + "ClearMap/Scripts/work_dir/")
 
-    runButton['state'] = 'normal'
-    exportButton['state'] = 'normal'
-    settingsButton['state'] = 'normal'
+    runButtonMain['state'] = 'normal'
     text_var.set("Imported folder " + nameFolder)
-    create_files()
+    with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "r") as outputFile:
+        data = json.load(outputFile)
+    data['fromImport'] = True
+
+    with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w+") as outputFile:
+        json.dump(data, outputFile)
 
 
-def create_settings_window():
+def create_settings_window(nextButton):
     """
     This function creates a second window for the gui where all the setting options are visualised.
     Any options chosen will be automatically written into the files in the work_dir
     :return:
     """
-    window = tk.Toplevel(root)
-    window.title("Settings")
-    varCelDetection = tk.StringVar(window)
-    varAlignmentData = tk.StringVar(window)
+    nextButton['state'] = 'disabled'
+
+    settingsWindow = tk.Toplevel(root)
+    settingsWindow.title("Settings")
 
     with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "r") as outputFile:
         data = json.load(outputFile)
 
     # Dictionary with options for the drop down options
-    internalClearmapDetectionChoice = 'Internal clearmap cel detection'
-    importChoice = 'Import your own cel detection'
-    arivisChoice = 'Use arivis'
-    internalClearmapAlignChoice = 'Internal clearmap alignment'
-    manualChoice = "Manual using imageJ"
-    machineLearningChoice = "Machine learning"
 
-    choicesCelDetection = {internalClearmapDetectionChoice, importChoice, arivisChoice}
-    choicesAlignmentOperation = {internalClearmapAlignChoice, manualChoice, machineLearningChoice}
+    textX = tk.Entry(settingsWindow, width=10)
+    textY = tk.Entry(settingsWindow, width=10)
+    textZ = tk.Entry(settingsWindow, width=10)
 
-    if data['fromSettings'] == True:
-        if data['alignmentOperation'] == internalClearmapAlignChoice:
-            varAlignmentData.set(internalClearmapAlignChoice)
-        if data['alignmentOperation'] == manualChoice:
-            varAlignmentData.set(manualChoice)
-        if data['alignmentOperation'] == machineLearningChoice:
-            varAlignmentData.set(machineLearningChoice)
-        if data['celDetection'] == internalClearmapDetectionChoice:
-            varCelDetection.set(internalClearmapDetectionChoice)
-        if data['celDetection'] == importChoice:
-            varCelDetection.set(importChoice)
-        if data['celDetection'] == arivisChoice:
-            varCelDetection.set(arivisChoice)
-    else:
-        varAlignmentData.set(internalClearmapAlignChoice)
-        varCelDetection.set(internalClearmapDetectionChoice)
+    textXAtlas = tk.Entry(settingsWindow, width=10)
+    textYAtlas = tk.Entry(settingsWindow, width=10)
+    textZAtlas = tk.Entry(settingsWindow, width=10)
 
-    popupMenuCelDetection = tk.OptionMenu(window, varCelDetection, *choicesCelDetection)
-    popupMenuAlignmentOperation = tk.OptionMenu(window, varAlignmentData, *choicesAlignmentOperation)
-
-    tk.Label(window, text="Choose a way to detect cells").grid(row=1, column=1)
-    popupMenuCelDetection.grid(row=2, column=1)
-    tk.Label(window, text="Choose a way to the alignment operations").grid(row=3, column=1)
-    popupMenuAlignmentOperation.grid(row=4, column=1)
-
-    table = tk.BooleanVar()
-    heatmap = tk.BooleanVar()
-
-    if data['fromSettings'] == True:
-
-        if data['table'] == True:
-            table.set(True)
-        if data['heatmap'] == True:
-            heatmap.set(True)
-    else:
-        table.set(True)
-        heatmap.set(True)
-    checkTable = tk.Checkbutton(window, text="Generate a table", var=table)
-    checkTable.grid(row=5, column=1)
-
-    checkHeat = tk.Checkbutton(window, text="Generate a heatmap", var=heatmap)
-    checkHeat.grid(row=6, column=1)
-
-    textX = tk.Entry(window, width=10)
-    textY = tk.Entry(window, width=10)
-    textZ = tk.Entry(window, width=10)
-
-    textXAtlas = tk.Entry(window, width=10)
-    textYAtlas = tk.Entry(window, width=10)
-    textZAtlas = tk.Entry(window, width=10)
-
-    if data['fromSettings'] == True:
+    if data['fromImport'] == True:
         textX.insert(0, data['realX'])
         textY.insert(0, data['realY'])
         textZ.insert(0, data['realZ'])
@@ -298,17 +238,25 @@ def create_settings_window():
     textY.grid(row=8, column=1)
     textZ.grid(row=9, column=1)
 
-    tk.Label(window, text="X axis resolution in μm/px = ").grid(row=7, column=0, padx=4, pady=4, sticky='ew')
-    tk.Label(window, text="Y axis resolution in μm/px = ").grid(row=8, column=0, padx=4, pady=4, sticky='ew')
-    tk.Label(window, text="Z axis resolution in μm/px = ").grid(row=9, column=0, padx=4, pady=4, sticky='ew')
+    tk.Label(settingsWindow, text="X axis resolution in μm/px = ").grid(row=7, column=0, padx=4, pady=4, sticky='ew')
+    tk.Label(settingsWindow, text="Y axis resolution in μm/px = ").grid(row=8, column=0, padx=4, pady=4, sticky='ew')
+    tk.Label(settingsWindow, text="Z axis resolution in μm/px = ").grid(row=9, column=0, padx=4, pady=4, sticky='ew')
 
     textXAtlas.grid(row=10, column=1)
     textYAtlas.grid(row=11, column=1)
     textZAtlas.grid(row=12, column=1)
 
-    tk.Label(window, text="Atlas X axis resolution in μm/px = ").grid(row=10, column=0, padx=4, pady=4, sticky='ew')
-    tk.Label(window, text="Atlas Y axis resolution in μm/px = ").grid(row=11, column=0, padx=4, pady=4, sticky='ew')
-    tk.Label(window, text="Atlas Z axis resolution in μm/px = ").grid(row=12, column=0, padx=4, pady=4, sticky='ew')
+    tk.Label(settingsWindow, text="Atlas X axis resolution in μm/px = ").grid(row=10, column=0, padx=4, pady=4,
+                                                                              sticky='ew')
+    tk.Label(settingsWindow, text="Atlas Y axis resolution in μm/px = ").grid(row=11, column=0, padx=4, pady=4,
+                                                                              sticky='ew')
+    tk.Label(settingsWindow, text="Atlas Z axis resolution in μm/px = ").grid(row=12, column=0, padx=4, pady=4,
+                                                                              sticky='ew')
+
+    def settings_quit():
+        settingsWindow.destroy()  # close the popup
+        nextButton['state'] = 'normal'
+
 
     def save():
         """
@@ -349,7 +297,6 @@ def create_settings_window():
             atlasY = "25"
             atlasZ = "25"
 
-
         if realX != "" or realY != "" or realZ != "":
             realX = realX.replace(",", ".").replace(" ", "")
             realY = realY.replace(",", ".").replace(" ", "")
@@ -380,17 +327,13 @@ def create_settings_window():
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
             data = json.load(json_file)
 
-        data['fromSettings'] = True
         data['realX'] = realX
         data['realY'] = realY
         data['realZ'] = realZ
         data['atlasX'] = atlasX
         data['atlasY'] = atlasY
         data['atlasZ'] = atlasZ
-        data['table'] = table.get()
-        data['heatmap'] = heatmap.get()
-        data['alignmentOperation'] = varAlignmentData.get()
-        data['celDetection'] = varCelDetection.get()
+        data['kill'] = False
 
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
             json.dump(data, outputFile)
@@ -398,85 +341,203 @@ def create_settings_window():
         create_files()
         saveStatus.set("Settings saved")
 
-    saveStatus = tk.StringVar(window)
+    saveStatus = tk.StringVar(settingsWindow)
     saveStatus.set("")
-    tk.Label(window, textvariable=saveStatus).grid(row=0, column=0, padx=4, pady=4, sticky='ew')
+    tk.Label(settingsWindow, textvariable=saveStatus).grid(row=0, column=0, padx=4, pady=4, sticky='ew')
 
-    saveButton = tk.Button(window, text="Implement changes", command=save)
-    saveButton.grid(column=1, padx=4, pady=4, sticky='ew')
+    runButton = tk.Button(settingsWindow, text="Implement changes and run clearmap",
+                          command=lambda: [save(), create_files(), call_file()])
+    runButton.grid(column=1, padx=4, pady=4, sticky='ew')
+    runExportButton = tk.Button(settingsWindow, text="save changes and export settings",
+                                command=lambda: [save(), create_files(), export()])
+    runExportButton.grid(column=1, padx=4, pady=4, sticky='ew')
+    settingsWindow.protocol("WM_DELETE_WINDOW", settings_quit)
 
-    quitButton = tk.Button(window, text="Quit", command=window.destroy)
-    quitButton.grid(column=2, padx=4, pady=4, sticky='ew')
+
+def create_run_window():
+    runWindow = tk.Toplevel(root)
+    runWindow.title("Options")
+
+    with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
+        data = json.load(json_file)
+
+    varCelDetection = tk.StringVar(runWindow)
+    varAlignmentData = tk.StringVar(runWindow)
+    internalClearmapDetectionChoice = 'Internal clearmap cel detection'
+    importChoice = 'Import your own cel detection'
+    arivisChoice = 'Use arivis'
+    internalClearmapAlignChoice = 'Internal clearmap alignment'
+    manualChoice = "Manual using imageJ"
+    machineLearningChoice = "Machine learning"
+
+    choicesCelDetection = {internalClearmapDetectionChoice, importChoice, arivisChoice}
+    choicesAlignmentOperation = {internalClearmapAlignChoice, manualChoice, machineLearningChoice}
+
+    if data['fromImport'] == True:
+        if data['alignmentOperation'] == internalClearmapAlignChoice:
+            varAlignmentData.set(internalClearmapAlignChoice)
+        elif data['alignmentOperation'] == manualChoice:
+            varAlignmentData.set(manualChoice)
+        elif data['alignmentOperation'] == machineLearningChoice:
+            varAlignmentData.set(machineLearningChoice)
+        if data['celDetection'] == internalClearmapDetectionChoice:
+            varCelDetection.set(internalClearmapDetectionChoice)
+        elif data['celDetection'] == importChoice:
+            varCelDetection.set(importChoice)
+        elif data['celDetection'] == arivisChoice:
+            varCelDetection.set(arivisChoice)
+    else:
+        varAlignmentData.set(internalClearmapAlignChoice)
+        varCelDetection.set(internalClearmapDetectionChoice)
+
+    popupMenuCelDetection = tk.OptionMenu(runWindow, varCelDetection, *choicesCelDetection)
+    popupMenuAlignmentOperation = tk.OptionMenu(runWindow, varAlignmentData, *choicesAlignmentOperation)
+
+    tableBox = tk.BooleanVar()
+    heatmapBox = tk.BooleanVar()
+    celDetectionBox = tk.BooleanVar()
+    alignmentBox = tk.BooleanVar()
+    resampleBox = tk.BooleanVar()
+
+    if data['fromImport'] == True:
+
+        if data['tableBox'] == True:
+            tableBox.set(True)
+        if data['heatmapBox'] == True:
+            heatmapBox.set(True)
+        if data['resampleBox'] == True:
+            resampleBox.set(True)
+        if data['celDetectionBox'] == True:
+            celDetectionBox.set(True)
+        if data['alignmentBox'] == True:
+            alignmentBox.set(True)
+
+    else:
+        tableBox.set(True)
+        heatmapBox.set(True)
+        celDetectionBox.set(True)
+        alignmentBox.set(True)
+        resampleBox.set(True)
+
+    checkResample = tk.Checkbutton(runWindow, var=resampleBox)
+    checkResample.grid(row=1, column=2)
+
+    checkCelDetection = tk.Checkbutton(runWindow, var=celDetectionBox)
+    checkCelDetection.grid(row=2, column=2)
+
+    checkAlignment = tk.Checkbutton(runWindow, var=alignmentBox)
+    checkAlignment.grid(row=3, column=2)
+
+    checkTable = tk.Checkbutton(runWindow, var=tableBox)
+    checkTable.grid(row=4, column=2)
+
+    checkHeat = tk.Checkbutton(runWindow, var=heatmapBox)
+    checkHeat.grid(row=5, column=2)
+
+    def run_quit():
+        runWindow.destroy()  # close the popup
+        runButtonMain['state'] = 'normal'
+        for widget in root.winfo_children():
+            if isinstance(widget, tk.Toplevel):
+                widget.destroy()
+
+    def saveSettings():
+        data['tableBox'] = tableBox.get()
+        data['heatmapBox'] = heatmapBox.get()
+        data['celDetectionBox'] = celDetectionBox.get()
+        data['alignmentBox'] = alignmentBox.get()
+        data['resampleBox'] = resampleBox.get()
+        data['alignmentOperation'] = varAlignmentData.get()
+        data['celDetection'] = varCelDetection.get()
+
+        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
+            json.dump(data, outputFile)
+
+    runButtonMain['state'] = 'disabled'
+
+    tk.Label(runWindow, text="Resample the files").grid(row=1, column=0)
+    tk.Label(runWindow, text="Choose a way to detect cells").grid(row=2, column=0)
+    popupMenuCelDetection.grid(row=2, column=1)
+    tk.Label(runWindow, text="Choose a way to the alignment operations").grid(row=3, column=0)
+    popupMenuAlignmentOperation.grid(row=3, column=1)
+    tk.Label(runWindow, text="Generate a table").grid(row=4, column=1)
+    tk.Label(runWindow, text="generate a heatmap").grid(row=5, column=1)
+    nextButton = tk.Button(runWindow, text="Next", command=lambda: [saveSettings(), create_settings_window(nextButton)])
+
+    nextButton.grid(column=0, padx=4, pady=4, sticky='ew')
+    runWindow.protocol("WM_DELETE_WINDOW", run_quit)
+
+
+def manual():
+    rootMA = tk.Toplevel(root)
+    rootMA.title("Clearmap")
+
+    tk.Label(rootMA, text="""Open the "autofluo_resampled.tif file and the "template_25.tif" file in ImageJ. 
+Go to Plugins -> Big Data Viewer -> Bigwarp. Open template_25 first, then autofluo_resampled. 
+In both images, hit Shift + A to flip both to coronal view. 
+Scroll around and match the files as closely as possible (left click + pull around to tilt your plane of view in 3d. Ctrl + Y to reset to starter view.)
+Landmark procedure: 
+    click on one of the windows to make sure you are active in the right window. 
+    Press Space bar to activate the landmark mode. 
+    Click on one of the landmarks. 
+    click the other window, re-activate landmark mode by pressing space bar(twice, if need be)
+    Mark the same landmark. 
+    Repeat until approx. 50-100 landmarks are marked. 
+Go to the landmarks window -> File -> Export landmarks. """).grid(padx=4, pady=4, sticky='ew')
+    findLandmarksButton = tk.Button(rootMA, text="Search for the landmarks file",
+                                    command=lambda: [findLandmarks(rootMA, pathClearMap), rootMA.destroy()])
+    findLandmarksButton.grid(padx=4, pady=4, sticky='ew')
+
+    def quit():
+        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
+            data = json.load(json_file)
+        data['kill'] = True
+        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
+            json.dump(data, outputFile)
+        rootMA.destroy()
+
+    rootMA.protocol("WM_DELETE_WINDOW", quit)
+
+    rootMA.wait_window(rootMA)
+
+
+def findLandmarks(rootMA, pathClearMap):
+    landmarksDir = askopenfilename(parent=rootMA, title="Select landmarks file")
+    pathOutput = pathClearMap + "ClearMap/clearmap_preset_folder/output/landmarks.csv"
+    try:
+        shutil.copyfile(landmarksDir, pathOutput)
+        write_landmarks_to_files(pathClearMap)
+    except FileNotFoundError:
+        messagebox.showinfo("ERROR", "An error occured while looking for the landmarks file")
 
 
 def call_file():
-    """
-    def tee_pipe(pipe, f1, f2):
-        for line in pipe:
-            f1.write(line)
-            f2.write(line)
-
-    proc = subprocess.Popen(['sudo', pathClearMap + 'ClearMap/Scripts/work_dir/process_template.py'],
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE)
-
-    # Open the output files for stdout/err in unbuffered mode.
-    out_file = open(pathClearMap + "ClearMap/myprog.log", "wb", 0)
-    err_file = open(pathClearMap + "ClearMap/myprog2.log", "wb", 0)
-
-    stdout = sys.stdout
-    stderr = sys.stderr
-
-    # On Python3 these are wrapped with BufferedTextIO objects that we don't
-    # want.
-    if sys.version_info[0] >= 3:
-        stdout = stdout.buffer
-        stderr = stderr.buffer
-
-    # Start threads to duplicate the pipes.
-    out_thread = threading.Thread(target=tee_pipe,
-                                  args=(proc.stdout, out_file, stdout))
-    err_thread = threading.Thread(target=tee_pipe,
-                                  args=(proc.stderr, err_file, stderr))
-
-    out_thread.start()
-    err_thread.start()
-
-    # Wait for the command to finish.
-    proc.wait()
-
-    # Join the pipe threads.
-    out_thread.join()
-    err_thread.join()
-
-    #sys.stdout = open(pathClearMap + "ClearMap/myprog.log", "a")
-    #subprocess.call(['ls','-l'], stdout=f)
-    #subprocess.call(['sudo', pathClearMap + 'ClearMap/Scripts/work_dir/process_template.py'], stdout=f)
-
-    """    
-    try:
+    with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
+        data = json.load(json_file)
+    if "Manual" in data['alignmentOperation']:
+        manual()
+        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
+            data = json.load(json_file)
+        print(data['kill'])
+        if data['kill'] == True:
+            file = open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py", "w")
+            f = "sys.exit()\n" + file.read()
+            file.write(f)
         exec(open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py").read())
-    except Exception as e:
-        print(e)
+    else:
+        exec(open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py").read())
 
     text_var.set("Done with the current operation")
 
 
-
 presetButton = tk.Button(root, text="Use preset folder", command=use_presets)
 manualButton = tk.Button(root, text="Choose each folder", command=choose_dirs)
-quitButton = tk.Button(root, text="Quit", command=lambda: [root.destroy, sys.exit()])
-exportButton = tk.Button(root, text="Export scripts with current settings", state=tk.DISABLED, command=export)
 importButton = tk.Button(root, text="import scripts with saved settings", command=importer)
-runButton = tk.Button(root, text="Run", state=tk.DISABLED, command=call_file)
-settingsButton = tk.Button(root, text="Settings", state=tk.DISABLED, command=create_settings_window)
+runButtonMain = tk.Button(root, text="Next", state=tk.DISABLED, command=create_run_window)
 presetButton.grid(row=1, column=0, padx=4, pady=4, sticky='ew')
 manualButton.grid(row=2, column=0, padx=4, pady=4, sticky='ew')
-quitButton.grid(row=5, column=2, padx=4, pady=4, sticky='ew')
-exportButton.grid(row=3, column=1, padx=4, pady=4, sticky='ew')
 importButton.grid(row=3, column=0, padx=4, pady=4, sticky='ew')
-runButton.grid(row=5, column=0, padx=4, pady=4, sticky='ew')
-settingsButton.grid(row=4, column=0, padx=4, pady=4, sticky='ew')
+runButtonMain.grid(row=5, column=0, padx=4, pady=4, sticky='ew')
 
 text_var = tk.StringVar(root)
 text_var.set("Please choose an action")
@@ -516,7 +577,10 @@ def run_gui():
         pass
     root.mainloop()
 
+
 class sameFolderProteinAutoFluo(Exception):
     pass
+
+
 class sameFolderAtlas(Exception):
     pass

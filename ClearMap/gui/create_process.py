@@ -1,31 +1,19 @@
 import json
-import sys
 
 
 def create_file_process(pathClearMap):
 
     with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "r") as outputFile:
         data = json.load(outputFile)
-    if data['fromSettings'] == False:
-        finalOutput = config_parameter_build(pathClearMap)
-        finalOutput += resampling_operations_build()
-        finalOutput += aligment_clearMap()
-        finalOutput += detection_clearmap()
-        finalOutput += transform_point_coordinates()
-        finalOutput += points_intensities()
-        finalOutput += heatmap()
-        finalOutput += table()
-
-    else:
-        finalOutput = config_parameter_import_build(pathClearMap)
-        finalOutput += resampling_operations_build()
 
 
+    finalOutput = config_parameter_import(pathClearMap)
+    if data['resampleBox'] == True:
+        finalOutput += resampling_operations()
+    if data['alignmentBox'] == True:
         if "Manual"in data['alignmentOperation']:
-            finalOutput += alignment_manual(pathClearMap)
+            finalOutput += alignment_manual()
             temp = transform_point_coordinates_manual()
-            #finalOutput += "exec(open('" + pathClearMap + "ClearMap/Scripts/work_dir/parameter_file.py').read())\n"
-
 
         elif "Machine" in data['alignmentOperation']:
             finalOutput += alignment_machineLearning()
@@ -33,7 +21,7 @@ def create_file_process(pathClearMap):
         else:
             finalOutput += aligment_clearMap()
             temp = transform_point_coordinates()
-
+    if data['celDetectionBox'] == True:
         if "arivis" in data['celDetection']:
             finalOutput += detection_arivis()
 
@@ -42,17 +30,17 @@ def create_file_process(pathClearMap):
 
         else:
             finalOutput += detection_clearmap()
-
+    if data['alignmentBox'] == True:
         finalOutput += temp
 
-        if data['table'] == True or data['heatmap'] == True:
-            finalOutput += points_intensities()
+    #if data['tableBox'] == True or data['heatmapBox'] == True:
+    #    finalOutput += points_intensities()
 
-        if data['heatmap'] == True:
-            finalOutput += heatmap()
+    if data['heatmapBox'] == True:
+        finalOutput += heatmap()
 
-        if data['table'] == True:
-            finalOutput += table()
+    if data['tableBox'] == True:
+        finalOutput += table()
 
 
 
@@ -61,12 +49,9 @@ def create_file_process(pathClearMap):
     processFile.write(finalOutput)
 
 
-def config_parameter_build(pathClearMap):
-    fileConfigAndParameter = "exec(open('" + pathClearMap + "docs/conf.py').read())\nimport ClearMap\n"
-    fileConfigAndParameter += "exec(open('" + pathClearMap + "ClearMap/Scripts/work_dir/parameter_file.py').read())\n"
-    return fileConfigAndParameter
 
-def config_parameter_import_build(pathClearMap):
+
+def config_parameter_import(pathClearMap):
     fileConfigAndParameter = "exec(open('" + pathClearMap + "docs/conf.py').read())\nimport ClearMap\n"
     fileConfigAndParameter += """from ClearMap.alignmentOptions.machineLearning import machineLearning
 from ClearMap.alignmentOptions.manualAlignment import manual
@@ -77,7 +62,7 @@ from ClearMap.celDetectionOptions.importOwnFiles import importOwn
     return fileConfigAndParameter
 
 
-def resampling_operations_build():
+def resampling_operations():
     resamplingOperations = "resampleData(**CorrectionResamplingParameterCfos);\n"
     resamplingOperations += "resampleData(**CorrectionResamplingParameterAutoFluo);\n"
     resamplingOperations += "resampleData(**RegistrationResamplingParameter);\n"
@@ -86,14 +71,13 @@ def resampling_operations_build():
 
 
 def aligment_clearMap():
-    alignment = "resultDirectory  = alignData(**CorrectionAlignmentParameter);\n"
-    alignment += "resultDirectory  = alignData(**RegistrationAlignmentParameter);\n"
+    alignment = 'resultDirectory  = alignData(**CorrectionAlignmentParameter);\n'
+    alignment += 'resultDirectory  = alignData(**RegistrationAlignmentParameter);\n'
     return alignment
 
 
-def alignment_manual(pathClearMap):
-    alignment = 'manual("' + pathClearMap + '")\n'
-    alignment += "resampleData(**RegistrationResamplingParameter);\n"
+def alignment_manual():
+    alignment = "resampleData(**RegistrationResamplingParameter);\n"
     alignment += "resultDirectory  = alignData(**RegistrationAlignmentParameter);\n"
     return alignment
 

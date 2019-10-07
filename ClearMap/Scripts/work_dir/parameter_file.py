@@ -13,7 +13,7 @@ from ClearMap.Analysis.Label import labelToName
 BaseDirectory ="/home/bram/Desktop/Jaar_3/donders/ClearMap_3/ClearMap/clearmap_preset_folder/output"
 cFosFile = os.path.join(BaseDirectory,"/home/bram/Desktop/Jaar_3/donders/ClearMap_3/ClearMap/clearmap_preset_folder/protein/cfos-substack.tif");
 AutofluoFile = os.path.join(BaseDirectory,"/home/bram/Desktop/Jaar_3/donders/ClearMap_3/ClearMap/clearmap_preset_folder/auto_fluo/template_25.tif");
-cFosFileRange = {'x': all, 'y':all , 'z': all};
+cFosFileRange = {'x': all, 'y': all , 'z': all};
 FinalOrientation = (1, 2, 3);
 OriginalResolution = (4.0625, 4.0625, 3)
 AtlasResolution = (25, 25, 25)
@@ -124,6 +124,7 @@ RegistrationAlignmentParameter["affineParameterFile"] = os.path.join(PathReg, 'P
 RegistrationAlignmentParameter["bSplineParameterFile"] = os.path.join(PathReg, 'Par0000bspline.txt');
 RegistrationAlignmentParameter["movingPoints"] = os.path.join(BaseDirectory, 'atlas_landmarks.txt');
 RegistrationAlignmentParameter["fixedPoints"] = os.path.join(BaseDirectory, 'autofluo_landmarks.txt');
+
 SpotDetectionParameter = {
     "source": cFosFile,
     "sink": (os.path.join(BaseDirectory, 'cells-allpoints.npy'), os.path.join(BaseDirectory, 'intensities-allpoints.npy')),

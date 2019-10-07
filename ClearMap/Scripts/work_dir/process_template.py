@@ -10,7 +10,10 @@ resampleData(**CorrectionResamplingParameterAutoFluo);
 resampleData(**RegistrationResamplingParameter);
 resultDirectory  = alignData(**CorrectionAlignmentParameter);
 resultDirectory  = alignData(**RegistrationAlignmentParameter);
-arivis()
+detectCells(**ImageProcessingParameter);
+points, intensities = io.readPoints(ImageProcessingParameter["sink"]);
+points, intensities = thresholdPoints(points, intensities, threshold = (20, 900), row = (3,3));
+io.writePoints(FilteredCellsFile, (points, intensities));
 points = io.readPoints(CorrectionResamplingPointsParameter["pointSource"]);
 points = resamplePoints(**CorrectionResamplingPointsParameter);
 points = transformPoints(points, transformDirectory = CorrectionAlignmentParameter["resultDirectory"], indices = False, resultDirectory = None);
@@ -20,8 +23,6 @@ RegistrationResamplingPointParameter["pointSource"] = points;
 points = resamplePoints(**RegistrationResamplingPointParameter);
 points = transformPoints(points, transformDirectory = RegistrationAlignmentParameter["resultDirectory"], indices = False, resultDirectory = None);
 io.writePoints(TransformedCellsFile, points);   
-points = io.readPoints(TransformedCellsFile)
-intensities = io.readPoints(FilteredCellsFile[1])
 points = io.readPoints(TransformedCellsFile)
 intensities = io.readPoints(FilteredCellsFile[1])
 vox = voxelize(points, AtlasFile, **voxelizeParameter);
