@@ -3,18 +3,21 @@ import tkinter as tk
 import tkinter.ttk as ttk
 
 from tkfilebrowser import askopendirname
+
 maindir = os.path.abspath(__file__)
-maindir = maindir.replace("run_clearmap_with_GUI.py","")
+maindir = maindir.replace("run_clearmap_with_GUI.py", "")
 settingsFileRead = open(maindir + "ClearMap/Settings.py").read()
 firstSetup = settingsFileRead.__contains__("placeholderElastix")
+
 
 def searchElastix():
     elastixPath = askopendirname(parent=root, title="Select the elastix folder")
     settingsFileRead = open(maindir + "ClearMap/Settings.py").read()
-    settingsFileRead = settingsFileRead.replace("placeholderElastix",elastixPath)
+    settingsFileRead = settingsFileRead.replace("placeholderElastix", elastixPath)
     settingsFileWrite = open(maindir + "ClearMap/Settings.py", "w")
     settingsFileWrite.write(settingsFileRead)
     quitButton['state'] = 'normal'
+
 
 def searchIlastik():
     ilastikPath = askopendirname(parent=root, title="Select the ilastik folder")
@@ -22,7 +25,6 @@ def searchIlastik():
     settingsFileRead = settingsFileRead.replace("placeholderIlastik", ilastikPath)
     settingsFileWrite = open(maindir + "ClearMap/Settings.py", "w")
     settingsFileWrite.write(settingsFileRead)
-
 
 
 if firstSetup:
@@ -33,8 +35,8 @@ if firstSetup:
     tk.Label(root, text="It looks like this is your first time running this program").grid(padx=4, pady=4, sticky='ew')
     tk.Label(root, text="Please refer to the requirements file for all the downloads").grid(padx=4, pady=4, sticky='ew')
     tk.Label(root, text="The path to where elastix is located is mandatory").grid(padx=4, pady=4, sticky='ew')
-    tk.Label(root, text="The path to ilastik can be left empty if you dont want to use it").grid(padx=4, pady=4, sticky='ew')
-
+    tk.Label(root, text="The path to ilastik can be left empty if you dont want to use it").grid(padx=4, pady=4,
+                                                                                                 sticky='ew')
 
     pathElastixButton = tk.Button(root, text="Search elastix", command=searchElastix)
     pathElastixButton.grid(padx=4, pady=4, sticky='ew')
@@ -47,7 +49,6 @@ if firstSetup:
 
     root.mainloop()
 
-
-
 from ClearMap.gui.tkinter_gui import run_gui
+
 run_gui()

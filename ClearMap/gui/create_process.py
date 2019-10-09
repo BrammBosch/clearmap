@@ -8,9 +8,9 @@ def create_file_process(pathClearMap):
 
 
     finalOutput = config_parameter_import(pathClearMap)
-    if data['resampleBox'] == True:
+    if data['resampleBox']:
         finalOutput += resampling_operations()
-    if data['alignmentBox'] == True:
+    if data['alignmentBox']:
         if "Manual"in data['alignmentOperation']:
             finalOutput += alignment_manual()
             temp = transform_point_coordinates_manual()
@@ -21,20 +21,20 @@ def create_file_process(pathClearMap):
         else:
             finalOutput += aligment_clearMap()
             temp = transform_point_coordinates()
-    if data['celDetectionBox'] == True:
-        if "arivis" in data['celDetection']:
+    if data['cellDetectionBox']:
+        if "arivis" in data['cellDetection']:
             finalOutput += detection_arivis()
 
-        elif "Import" in data['celDetection']:
+        elif "Import" in data['cellDetection']:
             finalOutput += detection_import()
 
         else:
             finalOutput += detection_clearmap()
-    if data['alignmentBox'] == True:
+    if data['alignmentBox']:
         finalOutput += temp
 
-    #if data['tableBox'] == True or data['heatmapBox'] == True:
-    #    finalOutput += points_intensities()
+    if data['tableBox'] or data['heatmapBox']:
+        finalOutput += points_intensities()
 
     if data['heatmapBox'] == True:
         finalOutput += heatmap()
@@ -50,11 +50,9 @@ def create_file_process(pathClearMap):
 
 
 
-
 def config_parameter_import(pathClearMap):
     fileConfigAndParameter = "exec(open('" + pathClearMap + "docs/conf.py').read())\nimport ClearMap\n"
     fileConfigAndParameter += """from ClearMap.alignmentOptions.machineLearning import machineLearning
-from ClearMap.alignmentOptions.manualAlignment import manual
 from ClearMap.celDetectionOptions.arivisPipeline import arivis
 from ClearMap.celDetectionOptions.importOwnFiles import importOwn
 """
