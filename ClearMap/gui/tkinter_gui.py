@@ -8,11 +8,9 @@ import shutil
 import sys
 import tkinter as tk
 import tkinter.ttk as ttk
-
+from distutils.dir_util import copy_tree
 from tkinter import simpledialog, messagebox
-
 from tkfilebrowser import askopendirname, askopenfilename
-
 from ClearMap.Utils.split_CSV import write_landmarks_to_files
 from ClearMap.gui.create_parameter import create_file_parameter
 from ClearMap.gui.create_process import create_file_process
@@ -74,6 +72,7 @@ def choose_dirs():
         except FileNotFoundError:
             messagebox.showinfo("ERROR", "The auto fluo folder doesn't seem to exist")
             sys.exit()
+
         for file in glob.glob("*.tif"):
             fileAutoFluo = file
             break
@@ -158,10 +157,13 @@ def use_presets():
     data['atlasDir'] = pathAtlas
     data['baseDir'] = pathBaseDirectory
     data['fromImport'] = False
-
-    with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w+") as outputFile:
-        json.dump(data, outputFile)
-
+    try:
+        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w+") as outputFile:
+            json.dump(data, outputFile)
+    except FileNotFoundError:
+        os.mkdir(pathClearMap + "ClearMap/Scripts/work_dir")
+        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w+") as outputFile:
+            json.dump(data, outputFile)
     runButtonMain['state'] = 'normal'
 
 
@@ -200,8 +202,8 @@ def importer():
     The importer function copies the parameter, process and settings files to the work_dir directory.
     It starts looking in the exports folder but if any files were copied it is also possible to point it to another
     directory
-    :return: If a file is part of a tif stack where the sequence is labeled by a Z followed by a 4 digit number this is found
-    using regex and the code is adjusted to fit these images.
+    :return: If a file is part of a tif stack where the sequence is labeled by a Z followed by a 4 digit number this is
+    found using regex and the code is adjusted to fit these images.
     """
 
     scriptsFolder = askopendirname(parent=root, title="Select scripts",
@@ -248,7 +250,7 @@ def create_settings_window(nextButton):
     textYAtlas = tk.Entry(settingsWindow, width=10)
     textZAtlas = tk.Entry(settingsWindow, width=10)
 
-    if data['fromImport'] == True:
+    if data['fromImport']:
         textX.insert(0, data['realX'])
         textY.insert(0, data['realY'])
         textZ.insert(0, data['realZ'])
@@ -285,10 +287,10 @@ def create_settings_window(nextButton):
         settingsWindow.destroy()  # close the popup
         nextButton['state'] = 'normal'
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
-            data = json.load(json_file)
-        data['kill'] = True
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
-            json.dump(data, outputFile)
+            dataKill = json.load(json_file)
+        dataKill['kill'] = True
+        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFileKillSettings:
+            json.dump(dataKill, outputFileKillSettings)
         listToplevel = []
         for widget in root.winfo_children():
             if isinstance(widget, tk.Toplevel):
@@ -303,7 +305,7 @@ def create_settings_window(nextButton):
         :return:
         """
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
-            data = json.load(json_file)
+            dataSettings = json.load(json_file)
         realX = textX.get()
         realY = textY.get()
         realZ = textZ.get()
@@ -364,7 +366,8 @@ def create_settings_window(nextButton):
                 run = False
         else:
             messagebox.showinfo("ERROR",
-                                "Please enter values for the resolution in the axes. If you don't the standard values X= 4.0625, Y= 4.0625, Z = 3 will be used")
+                                "Please enter values for the resolution in the axes. If you don't the standard values "
+                                "X= 4.0625, Y= 4.0625, Z = 3 will be used")
             textX.insert(0, "4.0625")
             textY.insert(0, "4.0625")
             textZ.insert(0, "3")
@@ -372,21 +375,19 @@ def create_settings_window(nextButton):
             realY = "4.0625"
             realZ = "3"
 
-
-
-        data['realX'] = realX
-        data['realY'] = realY
-        data['realZ'] = realZ
-        data['atlasX'] = atlasX
-        data['atlasY'] = atlasY
-        data['atlasZ'] = atlasZ
+        dataSettings['realX'] = realX
+        dataSettings['realY'] = realY
+        dataSettings['realZ'] = realZ
+        dataSettings['atlasX'] = atlasX
+        dataSettings['atlasY'] = atlasY
+        dataSettings['atlasZ'] = atlasZ
         if not run:
-            data['kill'] = True
+            dataSettings['kill'] = True
         else:
-            data['kill'] = False
+            dataSettings['kill'] = False
 
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
-            json.dump(data, outputFile)
+        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFileSettings:
+            json.dump(dataSettings, outputFileSettings)
 
         create_files()
         saveStatus.set("Settings saved")
@@ -428,7 +429,7 @@ def create_run_window():
     choicesCellDetection = {internalClearmapDetectionChoice, importChoice}
     choicesAlignmentOperation = {internalClearmapAlignChoice, manualChoice, machineLearningChoice}
 
-    if data['fromImport'] == True:
+    if data['fromImport']:
         if data['alignmentOperation'] == internalClearmapAlignChoice:
             varAlignmentData.set(internalClearmapAlignChoice)
         elif data['alignmentOperation'] == manualChoice:
@@ -466,7 +467,6 @@ def create_run_window():
         if data['alignmentBox']:
             alignmentBox.set(True)
 
-
     else:
         tableBox.set(True)
         heatmapBox.set(True)
@@ -488,11 +488,11 @@ def create_run_window():
         importButton['state'] = 'normal'
         presetButton['state'] = 'normal'
         manualButton['state'] = 'normal'
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
-            data = json.load(json_file)
-        data['kill'] = True
+        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as outputFileRunSettingsKill:
+            dataKillRunSettings = json.load(outputFileRunSettingsKill)
+        dataKillRunSettings['kill'] = True
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
-            json.dump(data, outputFile)
+            json.dump(dataKillRunSettings, outputFile)
         for widget in root.winfo_children():
             if isinstance(widget, tk.Toplevel):
                 widget.destroy()
@@ -657,7 +657,24 @@ def call_file():
 
     text_var.set("Done with the current operation")
     if not dataLoaded['kill']:
-        messagebox.showinfo("Finished", "Succesfully ran clearmap with the selected settings")
+        if dataLoaded['baseDir'] == pathClearMap + "ClearMap/clearmap_preset_folder/output":
+            try:
+                if messagebox.askyesno("Finished", "Succesfully ran clearmap with the selected settings,"
+                                                   "would you like to save the output?"):
+
+                    saveLocation = askopendirname(parent=root, title="Select a folder to save the output")
+                    if saveLocation == "":
+                        raise FileNotFoundError
+                    else:
+                        saveLocation = str(saveLocation) + "/results"
+                        print(saveLocation)
+                        copy_tree(pathClearMap + "ClearMap/clearmap_preset_folder/output", saveLocation)
+                        messagebox.showinfo("Finished", "Everything has been saved succesfully")
+
+            except FileNotFoundError:
+                pass
+        else:
+            messagebox.askyesno("Finished", "Succesfully ran clearmap with the selected settings")
 
 
 def clear_folder(folder):
@@ -698,17 +715,17 @@ def run_gui():
     It then starts the GUI
     :return:
     """
-    try:
-        folder = pathClearMap + "ClearMap/clearmap_preset_folder/output"
-        # clear_folder(folder)
-        # This clears the output folder in the preset.
 
-        folder = pathClearMap + "ClearMap/Scripts/work_dir"
-        clear_folder(folder)
-        # This empties the work directory before the gui runs
-    except:
-        pass
-    root.mainloop()
+    folder = pathClearMap + "ClearMap/clearmap_preset_folder/output"
+    # clear_folder(folder)
+    # This clears the output folder in the preset.
+
+    folder = pathClearMap + "ClearMap/Scripts/work_dir"
+    clear_folder(folder)
+    # This empties the work directory before the gui runs
+
+
+root.mainloop()
 
 
 class sameFolderProteinAutoFluo(Exception):
