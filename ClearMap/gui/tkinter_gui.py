@@ -1,3 +1,5 @@
+__author__ = "Bram Bosch"
+
 import glob
 import json
 import os
@@ -7,17 +9,15 @@ import sys
 import tkinter as tk
 import tkinter.ttk as ttk
 
-
 from tkinter import simpledialog, messagebox
 
 from tkfilebrowser import askopendirname, askopenfilename
 
-from ClearMap.Scripts.Templates.split_CSV import write_landmarks_to_files
+from ClearMap.Utils.split_CSV import write_landmarks_to_files
 from ClearMap.gui.create_parameter import create_file_parameter
 from ClearMap.gui.create_process import create_file_process
 
 root = tk.Tk()
-
 
 root.title("Clearmap")
 style = ttk.Style(root)
@@ -27,17 +27,17 @@ pathToGui = os.path.abspath(__file__)
 pathClearMap = pathToGui.replace("ClearMap/gui/tkinter_gui.py", "")
 
 
-
 def choose_dirs():
     """
     This function lets the user choose their own directories where all the files will be found.
-    It saved all relevant data in the local json file
+    It saved all relevant data in the local json file.
+    Using regex the program checks if file is part of a tif stack where the sequence is labeled by a Z f
+    ollowed by a 4 digit number
     :return:
     """
 
     try:
         data = {}
-
 
         autoFluoDir = askopendirname(parent=root, title="Select auto fluo folder")
         if autoFluoDir == "":
@@ -113,7 +113,9 @@ def choose_dirs():
 
 def use_presets():
     """
-    This function uses the 4 standard folders where the user can paste all their data
+    This function uses the 4 standard folders where the user can paste all their data so they don't have to search for
+    it each time. Using regex the program checks if file is part of a tif stack where the sequence is labeled by a Z f
+    ollowed by a 4 digit number. The standard paths are then stored in a local json file.
     :return:
     """
     data = {}
@@ -165,8 +167,8 @@ def use_presets():
 
 def create_files():
     """
-    This function call 2 different functions which create the parameter and the process template file.
-    They are saved in the work_dir and deleten en rewritten on start up and every change.
+    This function calls 2 different functions which create the parameter and the process template file.
+    They are saved in the work_dir and removed and rewritten on start up and on every change.
     :return:
     """
     create_file_parameter(pathClearMap)
@@ -176,7 +178,7 @@ def create_files():
 def export():
     """
     This function prompts the user for a name and creates a folder in the /Scripts/exports directory
-    with that name in which the parameter and process file are stored.
+    with that name in which the parameter, process and settings files are stored.
     :return:
     """
     try:
@@ -195,10 +197,11 @@ def export():
 
 def importer():
     """
-    The importer function copies the parameter and process file to the work_dir directory.
+    The importer function copies the parameter, process and settings files to the work_dir directory.
     It starts looking in the exports folder but if any files were copied it is also possible to point it to another
     directory
-    :return:
+    :return: If a file is part of a tif stack where the sequence is labeled by a Z followed by a 4 digit number this is found
+    using regex and the code is adjusted to fit these images.
     """
 
     scriptsFolder = askopendirname(parent=root, title="Select scripts",
@@ -220,8 +223,13 @@ def importer():
 
 def create_settings_window(nextButton):
     """
-    This function creates a second window for the gui where all the setting options are visualised.
-    Any options chosen will be automatically written into the files in the work_dir
+    This function is called after the user has choosen which parts of the clearmap pipeline to run.
+    It creates a tkinter window where the user has to input settings matching his data.
+    If the files in the work dir where imported the program automatically fills in the previous settings.
+    These can be overruled at any time.
+    If the user doesn't input any settings the program gives a warning and uses standard settings so the pipeline can
+    continue.
+    Opening this step locks the next button on the previous screen so multiple threads won't interfere with the data.
     :return:
     """
     nextButton['state'] = 'disabled'
@@ -231,8 +239,6 @@ def create_settings_window(nextButton):
 
     with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "r") as outputFile:
         data = json.load(outputFile)
-
-    # Dictionary with options for the drop down options
 
     textX = tk.Entry(settingsWindow, width=10)
     textY = tk.Entry(settingsWindow, width=10)
@@ -268,6 +274,14 @@ def create_settings_window(nextButton):
                                                                        sticky='ew')
 
     def settings_quit():
+        """
+        This function is called when the user quits the settings window.
+        It enables the use of the button on the previous window and passes a kill parameter to the local settings file.
+        This is done so the pipeline isn't able to run on accident without settings freezing the GUI and crashing later
+        in the program. It also looks for if a toplevel above this window was opened and closes it so any
+        windows which should be inaccessible are not staying open.
+        :return:
+        """
         settingsWindow.destroy()  # close the popup
         nextButton['state'] = 'normal'
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
@@ -284,7 +298,8 @@ def create_settings_window(nextButton):
 
     def save():
         """
-        This function takes alle the settings selected by the users and writes them to a local json fikle
+        This function takes alle the settings selected by the users and writes them to a local json file.
+        It also checks whether the entered settings are valid.
         :return:
         """
         realX = textX.get()
@@ -365,7 +380,6 @@ def create_settings_window(nextButton):
         create_files()
         saveStatus.set("Settings saved")
 
-
     saveStatus = tk.StringVar(settingsWindow)
     saveStatus.set("")
     tk.Label(settingsWindow, textvariable=saveStatus).grid(row=0, column=0, padx=4, pady=4, sticky='ew')
@@ -380,6 +394,11 @@ def create_settings_window(nextButton):
 
 
 def create_run_window():
+    """
+    This function is called after the user has specified where the files are and lets the user
+    choose which parts of the pipeline they want to run how they want to execute them.
+    :return:
+    """
     runWindow = tk.Toplevel(root)
     runWindow.title("Options")
 
@@ -390,7 +409,7 @@ def create_run_window():
     varAlignmentData = tk.StringVar(runWindow)
     internalClearmapDetectionChoice = 'Internal clearmap cell detection'
     importChoice = 'Import your own cell detection'
-    #arivisChoice = 'Use arivis'
+    # arivisChoice = 'Use arivis'
     internalClearmapAlignChoice = 'Internal clearmap alignment'
     manualChoice = "Manual using imageJ"
     machineLearningChoice = "Machine learning"
@@ -445,8 +464,19 @@ def create_run_window():
         resampleBox.set(True)
 
     def run_quit():
+        """
+        This function is called when the user quits the run options window.
+        It enables the use of the button on the previous window and passes a kill parameter to the local settings file.
+        This is done so the pipeline isn't able to run on accident without settings freezing the GUI and crashing later
+        in the program. It also looks for if a toplevel above this window was opened and closes it so any
+        windows which should be inaccessible are not staying open.
+        :return:
+        """
         runWindow.destroy()  # close the popup
         runButtonMain['state'] = 'normal'
+        importButton['state'] = 'normal'
+        presetButton['state'] = 'normal'
+        manualButton['state'] = 'normal'
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
             data = json.load(json_file)
         data['kill'] = True
@@ -457,6 +487,11 @@ def create_run_window():
                 widget.destroy()
 
     def saveSettings():
+        """
+        saveSettings saves the data from the checkboxes and the dropdown menus and writes this data to the local
+        json file.
+        :return:
+        """
         data['tableBox'] = tableBox.get()
         data['heatmapBox'] = heatmapBox.get()
         data['cellDetectionBox'] = cellDetectionBox.get()
@@ -469,6 +504,9 @@ def create_run_window():
             json.dump(data, outputFile)
 
     runButtonMain['state'] = 'disabled'
+    importButton['state'] = 'disabled'
+    presetButton['state'] = 'disabled'
+    manualButton['state'] = 'disabled'
 
     checkResample = tk.Checkbutton(runWindow, var=resampleBox)
     checkResample.grid(row=1, column=2)
@@ -512,6 +550,12 @@ def create_run_window():
 
 
 def manual():
+    """
+    If the user has selected to use the manual alignment using imageJ a popup window is opened where the user is asked
+    to select an landmarks.csv file generated by imageJ's bigdataviewer plugin. It also shows the steps necessary to
+    obtain these landmarks and how to export them.
+    :return:
+    """
     manualWindow = tk.Toplevel(root)
     manualWindow.title("Clearmap")
 
@@ -533,6 +577,11 @@ Go to the landmarks window -> File -> Export landmarks. """).grid(padx=4, pady=4
     findLandmarksButton.grid(padx=4, pady=4, sticky='ew')
 
     def manual_quit():
+        """
+        If the window is closed this function is called which sets the kill parameter to True which stops the pipeline
+        béfore it can run.
+        :return:
+        """
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
             data = json.load(json_file)
         data['kill'] = True
@@ -547,6 +596,12 @@ Go to the landmarks window -> File -> Export landmarks. """).grid(padx=4, pady=4
 
 
 def findLandmarks(rootMA, pathClearMap):
+    """
+    This functoion is called when the user has to select where the landmarks.csv file is located.
+    :param rootMA: This the window where the select landmarks button is called from.
+    :param pathClearMap: The path to where the entire program is saved.
+    :return:
+    """
     landmarksDir = askopenfilename(parent=rootMA, title="Select landmarks file")
     pathOutput = pathClearMap + "ClearMap/clearmap_preset_folder/output/landmarks.csv"
     try:
@@ -561,6 +616,12 @@ def findLandmarks(rootMA, pathClearMap):
 
 
 def call_file():
+    """
+    This is the last function that is called, it runs the process_template file which starts clearmap.
+    It also checks if it should kill the program before it begins by looking at the kill parameter in the
+    saved settings file.
+    :return:
+    """
     text_var.set("Starting")
 
     with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
@@ -583,22 +644,18 @@ def call_file():
 
         exec(open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py").read())
 
-        """
-        proc = subprocess.Popen(['sudo', pathClearMap + "ClearMap/Scripts/work_dir/process_template.py"], shell=False)
-        proc.communicate()
-      
-        p = Popen(['sudo',pathClearMap + "ClearMap/Scripts/work_dir/process_template.py"])
-        poll = p.poll()
-        while poll == None:
-            poll = p.poll()
-            time.sleep(5)
-            print("yes")
-    """
     text_var.set("Done with the current operation")
-    messagebox.showinfo("Finished", "Succesfully ran clearmap with the selected settings")
+    if not dataLoaded['kill']:
+        messagebox.showinfo("Finished", "Succesfully ran clearmap with the selected settings")
 
 
 def clear_folder(folder):
+    """
+    This function clears the entire content of the folder given in the parameter.
+
+    :param folder: The full path to whatever folder needs to be empty
+    :return:
+    """
     for the_file in os.listdir(folder):
         file_path = os.path.join(folder, the_file)
         try:

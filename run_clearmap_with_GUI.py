@@ -1,16 +1,22 @@
+__author__ = "Bram Bosch"
 import os
 import tkinter as tk
 import tkinter.ttk as ttk
-
+from ClearMap.gui.tkinter_gui import run_gui
 from tkfilebrowser import askopendirname
 
 maindir = os.path.abspath(__file__)
 maindir = maindir.replace("run_clearmap_with_GUI.py", "")
 settingsFileRead = open(maindir + "ClearMap/Settings.py").read()
-firstSetup = settingsFileRead.__contains__("placeholderElastix")
+firstSetup = settingsFileRead.__contains__(
+    "placeholderElastix")  # Check if placeholderElastix is in the settings.py file
 
 
 def searchElastix():
+    """
+    This function opens a dir chooser which asks the user to select the folder where elastix is installed
+    :return:
+    """
     elastixPath = askopendirname(parent=root, title="Select the elastix folder")
     settingsFileRead = open(maindir + "ClearMap/Settings.py").read()
     settingsFileRead = settingsFileRead.replace("placeholderElastix", elastixPath)
@@ -20,6 +26,10 @@ def searchElastix():
 
 
 def searchIlastik():
+    """
+    This function opens a dir chooser which asks the user to select the folder where Ilastik is installed
+    :return:
+    """
     ilastikPath = askopendirname(parent=root, title="Select the ilastik folder")
     settingsFileRead = open(maindir + "ClearMap/Settings.py").read()
     settingsFileRead = settingsFileRead.replace("placeholderIlastik", ilastikPath)
@@ -27,6 +37,11 @@ def searchIlastik():
     settingsFileWrite.write(settingsFileRead)
 
 
+"""
+If firstSetup is true a tkinter gui is called which lets the user give the path to their installation of elastix and
+Ilastik. The path to elastix is obligated. The path to Ilastik is not necessary.
+.
+"""
 if firstSetup:
     root = tk.Tk()
     root.title("Clearmap")
@@ -48,7 +63,5 @@ if firstSetup:
     quitButton.grid(padx=4, pady=4, sticky='ew')
 
     root.mainloop()
-
-from ClearMap.gui.tkinter_gui import run_gui
 
 run_gui()

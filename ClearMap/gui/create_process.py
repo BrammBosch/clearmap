@@ -1,7 +1,18 @@
+__author__ = "Bram Bosch"
 import json
 
 
 def create_file_process(pathClearMap):
+    """
+    This the main function called when creating a process file.
+    It starts by reading the settings from the json file.
+    The process file template is then constructed by looking at the saved settings and deciding which of the settings
+    to add to the file. The process function can easily be expanded by adding more functions to the finalOutput var.
+
+
+    :param pathClearMap: The path to the clearmap folders, unique for each computer.
+    :return:
+    """
 
     with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "r") as outputFile:
         data = json.load(outputFile)

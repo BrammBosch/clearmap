@@ -1,8 +1,20 @@
+__author__ = "Bram Bosch"
+
 import json
 import multiprocessing
 
 
 def create_file_parameter(pathClearMap):
+    """
+    This the main function called when creating a parameter file.
+    It starts by reading the settings from the json file.
+    The parameter file template is then constructed by looking at the saved settings and deciding which of the settings
+    to add to the file. The parameter function can easily be expanded by adding more functions to the finalOutput var.
+
+
+    :param pathClearMap: The path to the clearmap folders, unique for each computer.
+    :return:
+    """
     with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "r") as outputFile:
         data = json.load(outputFile)
 
@@ -62,7 +74,7 @@ def set_protein_range():
 
 
 def set_protein_range_manual():
-    proteinRange = "cFosFileRange = {'x': all, 'y':(180, 2560) , 'z': all};\n"
+    proteinRange = "cFosFileRange = {'x': all, 'y':(78, 2514), 'z': all};\n"
 
     return proteinRange
 
