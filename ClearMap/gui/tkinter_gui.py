@@ -302,13 +302,15 @@ def create_settings_window(nextButton):
         It also checks whether the entered settings are valid.
         :return:
         """
+        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
+            data = json.load(json_file)
         realX = textX.get()
         realY = textY.get()
         realZ = textZ.get()
         atlasX = textXAtlas.get()
         atlasY = textYAtlas.get()
         atlasZ = textZAtlas.get()
-
+        run = True
         if atlasX != "" or atlasY != "" or atlasZ != "":
             atlasX = atlasX.replace(",", ".").replace(" ", "")
             atlasY = atlasY.replace(",", ".").replace(" ", "")
@@ -317,18 +319,22 @@ def create_settings_window(nextButton):
             try:
                 float(atlasX) / 2
             except ValueError:
-                messagebox.showinfo("ERROR", "Please enter a valid number for the X value")
+                messagebox.showinfo("ERROR", "Please enter a valid number for the X value of the atlas")
+                run = False
             try:
                 float(atlasY) / 2
             except ValueError:
-                messagebox.showinfo("ERROR", "Please enter a valid number for the Y value")
+                messagebox.showinfo("ERROR", "Please enter a valid number for the Y value of the atlas")
+                run = False
             try:
                 float(atlasZ) / 2
             except ValueError:
-                messagebox.showinfo("ERROR", "Please enter a valid number for the Z value")
+                messagebox.showinfo("ERROR", "Please enter a valid number for the Z value of the atlas")
+                run = False
         else:
             messagebox.showinfo("ERROR",
-                                "Please enter values for the resolution in the axes. If you don't the standard values X= 25, Y= 25, Z = 25 will be used")
+                                "Please enter values for the atlas resolution in the axes. If you don't the standard "
+                                "values X= 25, Y= 25, Z = 25 will be used")
             textXAtlas.insert(0, "25")
             textYAtlas.insert(0, "25")
             textZAtlas.insert(0, "25")
@@ -344,15 +350,18 @@ def create_settings_window(nextButton):
             try:
                 float(realX) / 2
             except ValueError:
-                messagebox.showinfo("ERROR", "Please enter a valid number for the X value")
+                messagebox.showinfo("ERROR", "Please enter a valid number for the X value of the resolution")
+                run = False
             try:
                 float(realY) / 2
             except ValueError:
-                messagebox.showinfo("ERROR", "Please enter a valid number for the Y value")
+                messagebox.showinfo("ERROR", "Please enter a valid number for the Y value of the resolution")
+                run = False
             try:
                 float(realZ) / 2
             except ValueError:
-                messagebox.showinfo("ERROR", "Please enter a valid number for the Z value")
+                messagebox.showinfo("ERROR", "Please enter a valid number for the Z value of the resolution")
+                run = False
         else:
             messagebox.showinfo("ERROR",
                                 "Please enter values for the resolution in the axes. If you don't the standard values X= 4.0625, Y= 4.0625, Z = 3 will be used")
@@ -363,8 +372,7 @@ def create_settings_window(nextButton):
             realY = "4.0625"
             realZ = "3"
 
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
-            data = json.load(json_file)
+
 
         data['realX'] = realX
         data['realY'] = realY
@@ -372,7 +380,10 @@ def create_settings_window(nextButton):
         data['atlasX'] = atlasX
         data['atlasY'] = atlasY
         data['atlasZ'] = atlasZ
-        data['kill'] = False
+        if not run:
+            data['kill'] = True
+        else:
+            data['kill'] = False
 
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
             json.dump(data, outputFile)
