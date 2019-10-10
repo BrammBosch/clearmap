@@ -56,10 +56,10 @@ from ClearMap.Analysis.Label import labelToName
 
 
 def set_base_dir(data):
-    dir = 'BaseDirectory ="' + data['baseDir'] + '"\n'
-    dir += 'cFosFile = os.path.join(BaseDirectory,"' + data['proteinDir'] + '");\n'
-    dir += 'AutofluoFile = os.path.join(BaseDirectory,"' + data['autoFluoDir'] + '");\n'
-    return dir
+    dirs = 'BaseDirectory ="' + data['baseDir'] + '"\n'
+    dirs += 'cFosFile = os.path.join(BaseDirectory,"' + data['proteinDir'] + '");\n'
+    dirs += 'AutofluoFile = os.path.join(BaseDirectory,"' + data['autoFluoDir'] + '");\n'
+    return dirs
 
 
 def csvToNpy():
@@ -242,5 +242,3 @@ RegistrationResamplingPointParameter["dataSizeSource"] = cFosFile;
 RegistrationResamplingPointParameter["pointSink"] = None;
 """
     return customFilters
-
-

@@ -8,12 +8,14 @@ import shutil
 import sys
 import tkinter as tk
 import tkinter.ttk as ttk
+from ClearMap.errors.customExceptions import *
 from distutils.dir_util import copy_tree
-from tkinter import simpledialog, messagebox
+from tkinter import simpledialog, messagebox, filedialog
 from tkfilebrowser import askopendirname, askopenfilename
 from ClearMap.Utils.split_CSV import write_landmarks_to_files
 from ClearMap.gui.create_parameter import create_file_parameter
 from ClearMap.gui.create_process import create_file_process
+
 
 root = tk.Tk()
 
@@ -37,16 +39,16 @@ def choose_dirs():
     try:
         data = {}
 
-        autoFluoDir = askopendirname(parent=root, title="Select auto fluo folder")
+        autoFluoDir = filedialog.askdirectory(parent=root, title="Select auto fluo folder")
         if autoFluoDir == "":
             raise FileNotFoundError
-        proteinDir = askopendirname(parent=root, title="Select protein folder")
+        proteinDir = filedialog.askdirectory(parent=root, title="Select protein folder")
         if proteinDir == "":
             raise FileNotFoundError
-        atlasDir = askopendirname(parent=root, title="Select atlas folder")
+        atlasDir = filedialog.askdirectory(parent=root, title="Select atlas folder")
         if atlasDir == "":
             raise FileNotFoundError
-        baseDir = askopendirname(parent=root, title="Select output folder")
+        baseDir = filedialog.askdirectory(parent=root, title="Select output folder")
         if baseDir == "":
             raise FileNotFoundError
 
@@ -65,6 +67,7 @@ def choose_dirs():
 
         for file in glob.glob("*.tif"):
             fileProtein = file
+
             break
 
         try:
@@ -78,7 +81,7 @@ def choose_dirs():
             break
 
         try:
-            fileProtein = re.sub(r'Z[0-9]{4}}', 'Z\d{4}', fileProtein)
+            fileProtein = re.sub(r'Z[0-9]{4}', 'Z\d{4}', fileProtein)
             fileAutoFluo = re.sub(r'Z[0-9]{4}', 'Z\d{4}', fileAutoFluo)
         except:
             pass
@@ -97,7 +100,6 @@ def choose_dirs():
     except FileNotFoundError:
         pass
     except tk.TclError:
-        messagebox.showinfo("ERROR", "whoops")
         pattern = re.compile("(!filebrowser)[2-5]")
         for widget in root.winfo_children():
             if pattern.match(widget.winfo_name()):
@@ -145,8 +147,8 @@ def use_presets():
         break
 
     try:
-        fileProtein = re.sub(r'(Z)[0-9][0-9][0-9][0-9]', 'Z\d{4}', fileProtein)
-        fileAutoFluo = re.sub(r'(Z)[0-9][0-9][0-9][0-9]', 'Z\d{4}', fileAutoFluo)
+        fileProtein = re.sub(r'Z[0-9]{4}', 'Z\d{4}', fileProtein)
+        fileAutoFluo = re.sub(r'Z[0-9]{4}', 'Z\d{4}', fileAutoFluo)
     except:
         pass
     pathAutoFluo += "/" + fileAutoFluo
@@ -728,9 +730,3 @@ def run_gui():
 root.mainloop()
 
 
-class sameFolderProteinAutoFluo(Exception):
-    pass
-
-
-class sameFolderAtlas(Exception):
-    pass
