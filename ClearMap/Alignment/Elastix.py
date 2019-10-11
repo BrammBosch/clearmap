@@ -458,18 +458,11 @@ def alignData(fixedImage, movingImage, affineParameterFile, bSplineParameterFile
 
 
     if bSplineParameterFile is None:
-        print("test123")
         cmd = ElastixBinary + ' -threads 8 -m ' + movingImage + ' -f ' + fixedImage + ' -p ' + affineParameterFile + ' -out ' + resultDirectory;
     elif affineParameterFile is None:
         cmd = ElastixBinary + ' -threads 8 -m ' + movingImage + ' -f ' + fixedImage + ' -p ' + bSplineParameterFile + ' -out ' + resultDirectory;
     else:
-        print("test " +ElastixBinary)
-        print(movingImage)
-        print(fixedImage)
-        print(bSplineParameterFile)
-        print(resultDirectory)
-        print(movingPoints)
-        print(fixedPoints)
+
         cmd = ElastixBinary + ' -threads 8 -m ' + movingImage + ' -f ' + fixedImage +  ' -p ' + bSplineParameterFile + ' -out ' + resultDirectory + ' -mp ' + movingPoints + ' -fp ' + fixedPoints;
 
          #$ELASTIX -threads 16 -m $MOVINGIMAGE -f $FIXEDIMAGE -fMask $FIXEDIMAGE_MASK -p  $AFFINEPARFILE -p $BSPLINEPARFILE -out $ELASTIX_OUTPUT_DIR

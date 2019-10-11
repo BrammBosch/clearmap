@@ -80,10 +80,12 @@ def choose_dirs():
             break
 
         try:
-            fileProtein = re.sub(r'Z[0-9]{4}', 'Z\d{4}', fileProtein)
-            fileAutoFluo = re.sub(r'Z[0-9]{4}', 'Z\d{4}', fileAutoFluo)
-        except:
-            pass
+            fileProtein = re.sub(r'Z[0-9]{4}', 'Z\\\\d{4}', fileProtein)
+            fileAutoFluo = re.sub(r'Z[0-9]{4}', 'Z\\\\d{4}', fileAutoFluo)
+        except Exception as e:
+            print(e)
+        print(fileProtein)
+        print(fileAutoFluo)
         autoFluoDir += "/" + fileAutoFluo
         proteinDir += "/" + fileProtein
         data['autoFluoDir'] = autoFluoDir
@@ -146,8 +148,8 @@ def use_presets():
         break
 
     try:
-        fileProtein = re.sub(r'Z[0-9]{4}', 'Z\d{4}', fileProtein)
-        fileAutoFluo = re.sub(r'Z[0-9]{4}', 'Z\d{4}', fileAutoFluo)
+        fileProtein = re.sub(r'Z[0-9]{4}', 'Z\\\\d{4}', fileProtein)
+        fileAutoFluo = re.sub(r'Z[0-9]{4}', 'Z\\\\d{4}', fileAutoFluo)
     except:
         pass
     pathAutoFluo += "/" + fileAutoFluo
