@@ -732,6 +732,6 @@ def run_gui():
     # This empties the work directory before the gui runs
 
 
-root.mainloop()
+    root.mainloop()
 
 
