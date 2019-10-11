@@ -64,7 +64,6 @@ def choose_dirs():
         except FileNotFoundError:
             messagebox.showinfo("ERROR", "The protein folder doesn't seem to exist")
             sys.exit()
-
         for file in glob.glob("*.tif"):
             fileProtein = file
 
@@ -197,6 +196,8 @@ def export():
                     pathClearMap + "ClearMap/Scripts/exports/" + nameFolder)
     except FileExistsError:
         messagebox.showinfo("ERROR", "A save under this name already exists")
+    except TypeError:
+        pass
 
 
 def importer():
@@ -207,23 +208,24 @@ def importer():
     :return: If a file is part of a tif stack where the sequence is labeled by a Z followed by a 4 digit number this is
     found using regex and the code is adjusted to fit these images.
     """
+    try:
+        scriptsFolder = askopendirname(parent=root, title="Select scripts",
+                                       initialdir=pathClearMap + "ClearMap/Scripts/exports/")
+        nameFolder = scriptsFolder.replace(pathClearMap + "ClearMap/Scripts/exports/", "")
+        shutil.copy(scriptsFolder + "/parameter_file.py", pathClearMap + "ClearMap/Scripts/work_dir/")
+        shutil.copy(scriptsFolder + "/process_template.py", pathClearMap + "ClearMap/Scripts/work_dir/")
+        shutil.copy(scriptsFolder + "/savedSettings.txt", pathClearMap + "ClearMap/Scripts/work_dir/")
 
-    scriptsFolder = askopendirname(parent=root, title="Select scripts",
-                                   initialdir=pathClearMap + "ClearMap/Scripts/exports/")
-    nameFolder = scriptsFolder.replace(pathClearMap + "ClearMap/Scripts/exports/", "")
-    shutil.copy(scriptsFolder + "/parameter_file.py", pathClearMap + "ClearMap/Scripts/work_dir/")
-    shutil.copy(scriptsFolder + "/process_template.py", pathClearMap + "ClearMap/Scripts/work_dir/")
-    shutil.copy(scriptsFolder + "/savedSettings.txt", pathClearMap + "ClearMap/Scripts/work_dir/")
+        runButtonMain['state'] = 'normal'
+        text_var.set("Imported folder " + nameFolder)
+        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "r") as outputFile:
+            data = json.load(outputFile)
+        data['fromImport'] = True
 
-    runButtonMain['state'] = 'normal'
-    text_var.set("Imported folder " + nameFolder)
-    with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "r") as outputFile:
-        data = json.load(outputFile)
-    data['fromImport'] = True
-
-    with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w+") as outputFile:
-        json.dump(data, outputFile)
-
+        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w+") as outputFile:
+            json.dump(data, outputFile)
+    except FileNotFoundError:
+        pass
 
 def create_settings_window(nextButton):
     """
@@ -616,6 +618,7 @@ def findLandmarks(rootMA, pathClearMap):
     :return:
     """
     landmarksDir = askopenfilename(parent=rootMA, title="Select landmarks file")
+    print(landmarksDir)
     pathOutput = pathClearMap + "ClearMap/clearmap_preset_folder/output/landmarks.csv"
     try:
         shutil.copyfile(landmarksDir, pathOutput)

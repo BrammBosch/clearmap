@@ -69,12 +69,14 @@ numpy.save(os.path.join(BaseDirectory,'cells.npy'), cellspoints)\n"""
 
 
 def set_protein_range():
-    proteinRange = "cFosFileRange = {'x': all, 'y': all , 'z': all};\n"
+    proteinRange = "cFosFileRange = {'x': all, 'y': (-5,43242342342423423424234) , 'z': all};\n"
     return proteinRange
 
 
 def set_protein_range_manual():
-    proteinRange = "cFosFileRange = {'x': all, 'y':(78, 2514), 'z': all};\n"
+    #proteinRange = "cFosFileRange = {'x': all, 'y':(78, 2514), 'z': all};\n"
+    #proteinRange = "cFosFileRange = {'x': all, 'y': (-5,43242342342423423424234) , 'z': all};\n"
+    proteinRange = "cFosFileRange = {'x': all, 'y': all, 'z': all};\n"
 
     return proteinRange
 
