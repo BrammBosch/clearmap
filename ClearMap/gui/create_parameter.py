@@ -11,7 +11,6 @@ def create_file_parameter(pathClearMap):
     The parameter file template is then constructed by looking at the saved settings and deciding which of the settings
     to add to the file. The parameter function can easily be expanded by adding more functions to the finalOutput var.
 
-
     :param pathClearMap: The path to the clearmap folders, unique for each computer.
     :return:
     """
@@ -69,25 +68,20 @@ numpy.save(os.path.join(BaseDirectory,'cells.npy'), cellspoints)\n"""
 
 
 def set_protein_range():
-    proteinRange = "cFosFileRange = {'x': all, 'y': (-5,43242342342423423424234) , 'z': all};\n"
+    proteinRange = "cFosFileRange = {'x': all, 'y': all , 'z': all};\n"
     return proteinRange
 
 
 def set_protein_range_manual():
-    #proteinRange = "cFosFileRange = {'x': all, 'y':(78, 2514), 'z': all};\n"
-    #proteinRange = "cFosFileRange = {'x': all, 'y': (-5,43242342342423423424234) , 'z': all};\n"
-    proteinRange = "cFosFileRange = {'x': all, 'y': all, 'z': all};\n"
+    proteinRange = "cFosFileRange = {'x': all, 'y':(78, 2514), 'z': all};\n"
+    # proteinRange = "cFosFileRange = {'x': all, 'y': (-5,43242342342423423424234) , 'z': all};\n"
+    # proteinRange = "cFosFileRange = {'x': all, 'y': all, 'z': all};\n"
 
     return proteinRange
 
 
 def original_resolution(data):
     originalResolution = "OriginalResolution = (" + data['realX'] + ', ' + data['realY'] + ', ' + data['realZ'] + ')\n'
-    return originalResolution
-
-
-def original_resolution_preset():
-    originalResolution = "OriginalResolution = (4.0625,4.0625,3)\n"
     return originalResolution
 
 
@@ -98,11 +92,6 @@ def set_final_orientation():
 
 def atlas_resolution(data):
     atlasResolution = "AtlasResolution = (" + data['atlasX'] + ', ' + data['atlasY'] + ', ' + data['atlasZ'] + ')\n'
-    return atlasResolution
-
-
-def atlas_resolution_preset():
-    atlasResolution = "AtlasResolution = (25,25,25)\n"
     return atlasResolution
 
 

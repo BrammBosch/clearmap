@@ -16,7 +16,6 @@ from ClearMap.Utils.split_CSV import write_landmarks_to_files
 from ClearMap.gui.create_parameter import create_file_parameter
 from ClearMap.gui.create_process import create_file_process
 
-
 root = tk.Tk()
 
 root.title("Clearmap")
@@ -31,8 +30,8 @@ def choose_dirs():
     """
     This function lets the user choose their own directories where all the files will be found.
     It saved all relevant data in the local json file.
-    Using regex the program checks if file is part of a tif stack where the sequence is labeled by a Z f
-    ollowed by a 4 digit number
+    Using regex the program checks if file is part of a tif stack where the sequence is labeled by a Z
+    followed by a 4 digit number
     :return:
     """
 
@@ -66,7 +65,6 @@ def choose_dirs():
             sys.exit()
         for file in glob.glob("*.tif"):
             fileProtein = file
-
             break
 
         try:
@@ -229,6 +227,7 @@ def importer():
     except FileNotFoundError:
         pass
 
+
 def create_settings_window(nextButton):
     """
     This function is called after the user has choosen which parts of the clearmap pipeline to run.
@@ -349,6 +348,7 @@ def create_settings_window(nextButton):
             atlasX = "25"
             atlasY = "25"
             atlasZ = "25"
+            run = False
 
         if realX != "" or realY != "" or realZ != "":
             realX = realX.replace(",", ".")
@@ -380,6 +380,7 @@ def create_settings_window(nextButton):
             realX = "4.0625"
             realY = "4.0625"
             realZ = "3"
+            run = False
 
         dataSettings['realX'] = realX
         dataSettings['realY'] = realY
@@ -716,6 +717,7 @@ text_var.set("Please choose an action")
 tk.Label(root, textvariable=text_var).grid(row=1, column=2, padx=4, pady=4, sticky='ew')
 
 
+
 def run_gui():
     """
     This function starts by clearing out the work_dir folder and the output folder.
@@ -731,7 +733,4 @@ def run_gui():
     clear_folder(folder)
     # This empties the work directory before the gui runs
 
-
     root.mainloop()
-
-
