@@ -562,7 +562,7 @@ def create_run_window():
     heatmapLabel = tk.Label(runWindow, text="generate a heatmap")
     heatmapLabel.grid(row=5, column=1)
 
-    nextButton = tk.Button(runWindow, text="Next", command=lambda: [saveSettings(), create_settings_window(nextButton)])
+    nextButton = tk.Button(runWindow, text="Next", command=lambda: [saveSettings(), customRunOptions(nextButton)])
 
     nextButton.grid(column=2, padx=4, pady=4, sticky='ew')
     runWindow.protocol("WM_DELETE_WINDOW", run_quit)
@@ -634,9 +634,10 @@ def findLandmarks(rootMA, pathClearMap):
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
             json.dump(data, outputFile)
 
-def customRunOptions():
+
+def customRunOptions(nextButton):
     runOptionsWindow = tk.Toplevel(root)
-    runOptionsWindow.title("test")
+    runOptionsWindow.title("Error")
 
     with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
         dataRunOptions = json.load(json_file)
@@ -645,18 +646,73 @@ def customRunOptions():
     tk.Label(runOptionsWindow, textvariable=text_var).grid(padx=4, pady=4, sticky='ew')
     contButton = tk.Button(runOptionsWindow, text="continue", command=runOptionsWindow.destroy)
     contButton.grid(padx=4, pady=4, sticky='ew')
-    if dataRunOptions['tableBox'] and dataRunOptions['heatmapBox'] and dataRunOptions['cellDetectionBox'] and dataRunOptions ['alignmentBox'] and dataRunOptions['resampleBox']:
+    if dataRunOptions['tableBox'] and dataRunOptions['heatmapBox'] and dataRunOptions['cellDetectionBox'] and \
+            dataRunOptions['alignmentBox'] and dataRunOptions['resampleBox']:
         runOptionsWindow.destroy()
-    else:
-        if not dataRunOptions['cellDetectionBox'] and dataRunOptions['alignmentBox']:
-            text_var.set("De alignment staat aan maar de celdetectie niet")
-            dataRunOptions['kill'] = True
+        create_settings_window(nextButton)
 
+    else:
+        run = True
+        if not dataRunOptions['cellDetectionBox'] and not dataRunOptions['resampleBox'] and dataRunOptions[
+            'alignmentBox']:
+            if os.path.exists(pathClearMap + 'ClearMap/clearmap_preset_folder/output/cells.npy'):
+                run = True
+            else:
+                text_var.set("""You have chosen to skip the resampling and celdetection but the alignment needs a
+                        cells.npy file and the resampled files.
+                        Please select a file or go back and select celdetection""")
+                dataRunOptions['kill'] = True
+                run = False
+
+        elif not dataRunOptions['cellDetectionBox'] and dataRunOptions['alignmentBox']:
+
+            if os.path.exists(pathClearMap + 'ClearMap/clearmap_preset_folder/output/cells.npy'):
+                # runOptionsWindow.destroy()
+
+                run = True
+            else:
+                text_var.set("""You have chosen to skip the celdetection but the alignment needs a cells.npy file. 
+                     please select a file or go back and select celdetection""")
+                dataRunOptions['kill'] = True
+                run = False
+
+        elif not dataRunOptions['resampleBox'] and dataRunOptions['alignmentBox']:
+
+            if os.path.exists(pathClearMap + 'ClearMap/clearmap_preset_folder/output/cells.npy'):
+
+                run = True
+            else:
+                text_var.set("""You have chosen to skip the resampling but the alignment needs the resampled files file. 
+                please select a file or go back and select celdetection""")
+                dataRunOptions['kill'] = True
+                run = False
+
+        elif not dataRunOptions['cellDetectionBox'] and dataRunOptions['heatmapBox']:
+            if os.path.exists(
+                    pathClearMap + 'ClearMap/clearmap_preset_folder/output/intensities.npy') and os.path.exists(
+                pathClearMap + 'ClearMap/clearmap_preset_folder/output/cells_transformed_to_Atlas.npy'):
+                run = True
+            else:
+                text_var.set("""You have chosen to skip the celdetection but the heatmap creation needs a intensities.npy file and a cells_transformed_to_Atlas.npy file.
+                        please select a file or go back and select celdetection""")
+                dataRunOptions['kill'] = True
+                run = False
+        elif not dataRunOptions['cellDetectionBox'] and dataRunOptions['tableBox']:
+            if os.path.exists(
+                    pathClearMap + 'ClearMap/clearmap_preset_folder/output/intensities.npy') and os.path.exists(
+                pathClearMap + 'ClearMap/clearmap_preset_folder/output/cells_transformed_to_Atlas.npy'):
+                run = True
+            else:
+                text_var.set("""You have chosen to skip the celdetection but the table creation needs a intensities.npy file and a cells_transformed_to_Atlas.npy file.
+                       please select a file or go back and select celdetection""")
+                dataRunOptions['kill'] = True
+                run = False
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
             json.dump(dataRunOptions, outputFile)
-
-        runOptionsWindow.wait_window(runOptionsWindow)
-
+        print(run)
+        if run == True:
+            runOptionsWindow.destroy()
+            create_settings_window(nextButton)
 
 
 def call_file():
@@ -672,6 +728,7 @@ def call_file():
         dataLoaded = json.load(json_file)
     if "Manual" in dataLoaded['alignmentOperation']:
         manual()
+    # customRunOptions()
     with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
         dataLoaded = json.load(json_file)
     if dataLoaded['kill']:
@@ -683,10 +740,10 @@ def call_file():
 
         processFile.write(output)
 
-        #exec(open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py").read())
+        exec(open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py").read())
     else:
-        customRunOptions()
-        #exec(open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py").read())
+
+        exec(open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py").read())
 
     text_var.set("Done with the current operation")
     if not dataLoaded['kill']:
@@ -740,7 +797,6 @@ runButtonMain.grid(row=5, column=0, padx=4, pady=4, sticky='ew')
 text_var = tk.StringVar(root)
 text_var.set("Please choose an action")
 tk.Label(root, textvariable=text_var).grid(row=1, column=2, padx=4, pady=4, sticky='ew')
-
 
 
 def run_gui():
