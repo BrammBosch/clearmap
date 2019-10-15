@@ -655,7 +655,7 @@ def customRunOptions(nextButton):
         run = True
         if not dataRunOptions['cellDetectionBox'] and not dataRunOptions['resampleBox'] and dataRunOptions[
             'alignmentBox']:
-            if os.path.exists(pathClearMap + 'ClearMap/clearmap_preset_folder/output/cells.npy'):
+            if os.path.exists(pathClearMap + 'ClearMap/clearmap_preset_folder/output/cells.npy') and os.path.exists(pathClearMap + 'ClearMap/clearmap_preset_folder/output/autofluo_for_cfos_resampled.tif') and os.path.exists(pathClearMap + 'ClearMap/clearmap_preset_folder/output/cfos_resampled.tif'):
                 run = True
             else:
                 text_var.set("""You have chosen to skip the resampling and celdetection but the alignment needs a
@@ -664,7 +664,7 @@ def customRunOptions(nextButton):
                 dataRunOptions['kill'] = True
                 run = False
 
-        elif not dataRunOptions['cellDetectionBox'] and dataRunOptions['alignmentBox']:
+        if run and not dataRunOptions['cellDetectionBox'] and dataRunOptions['alignmentBox']:
 
             if os.path.exists(pathClearMap + 'ClearMap/clearmap_preset_folder/output/cells.npy'):
                 # runOptionsWindow.destroy()
@@ -676,18 +676,18 @@ def customRunOptions(nextButton):
                 dataRunOptions['kill'] = True
                 run = False
 
-        elif not dataRunOptions['resampleBox'] and dataRunOptions['alignmentBox']:
+        if run and not dataRunOptions['resampleBox'] and dataRunOptions['alignmentBox']:
 
-            if os.path.exists(pathClearMap + 'ClearMap/clearmap_preset_folder/output/cells.npy'):
+            if os.path.exists(pathClearMap + 'ClearMap/clearmap_preset_folder/output/autofluo_for_cfos_resampled.tif') and os.path.exists(pathClearMap + 'ClearMap/clearmap_preset_folder/output/cfos_resampled.tif'):
 
                 run = True
             else:
-                text_var.set("""You have chosen to skip the resampling but the alignment needs the resampled files file. 
+                text_var.set("""You have chosen to skip the resampling but the alignment needs the resampled tif files. 
                 please select a file or go back and select celdetection""")
                 dataRunOptions['kill'] = True
                 run = False
 
-        elif not dataRunOptions['cellDetectionBox'] and dataRunOptions['heatmapBox']:
+        if run and not dataRunOptions['cellDetectionBox'] and dataRunOptions['heatmapBox']:
             if os.path.exists(
                     pathClearMap + 'ClearMap/clearmap_preset_folder/output/intensities.npy') and os.path.exists(
                 pathClearMap + 'ClearMap/clearmap_preset_folder/output/cells_transformed_to_Atlas.npy'):
@@ -697,7 +697,7 @@ def customRunOptions(nextButton):
                         please select a file or go back and select celdetection""")
                 dataRunOptions['kill'] = True
                 run = False
-        elif not dataRunOptions['cellDetectionBox'] and dataRunOptions['tableBox']:
+        if run and not dataRunOptions['cellDetectionBox'] and dataRunOptions['tableBox']:
             if os.path.exists(
                     pathClearMap + 'ClearMap/clearmap_preset_folder/output/intensities.npy') and os.path.exists(
                 pathClearMap + 'ClearMap/clearmap_preset_folder/output/cells_transformed_to_Atlas.npy'):
