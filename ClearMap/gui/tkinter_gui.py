@@ -24,6 +24,7 @@ style.theme_use("clam")
 
 pathToGui = os.path.abspath(__file__)
 pathClearMap = pathToGui.replace("ClearMap/gui/tkinter_gui.py", "")
+settingsFileRead = open("ClearMap/Settings.py").read()
 
 
 def choose_dirs():
@@ -633,6 +634,30 @@ def findLandmarks(rootMA, pathClearMap):
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
             json.dump(data, outputFile)
 
+def customRunOptions():
+    runOptionsWindow = tk.Toplevel(root)
+    runOptionsWindow.title("test")
+
+    with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
+        dataRunOptions = json.load(json_file)
+    text_var = tk.StringVar(runOptionsWindow)
+    text_var.set("Please choose an action")
+    tk.Label(runOptionsWindow, textvariable=text_var).grid(padx=4, pady=4, sticky='ew')
+    contButton = tk.Button(runOptionsWindow, text="continue", command=runOptionsWindow.destroy)
+    contButton.grid(padx=4, pady=4, sticky='ew')
+    if dataRunOptions['tableBox'] and dataRunOptions['heatmapBox'] and dataRunOptions['cellDetectionBox'] and dataRunOptions ['alignmentBox'] and dataRunOptions['resampleBox']:
+        runOptionsWindow.destroy()
+    else:
+        if not dataRunOptions['cellDetectionBox'] and dataRunOptions['alignmentBox']:
+            text_var.set("De alignment staat aan maar de celdetectie niet")
+            dataRunOptions['kill'] = True
+
+        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
+            json.dump(dataRunOptions, outputFile)
+
+        runOptionsWindow.wait_window(runOptionsWindow)
+
+
 
 def call_file():
     """
@@ -658,10 +683,10 @@ def call_file():
 
         processFile.write(output)
 
-        exec(open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py").read())
+        #exec(open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py").read())
     else:
-
-        exec(open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py").read())
+        customRunOptions()
+        #exec(open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py").read())
 
     text_var.set("Done with the current operation")
     if not dataLoaded['kill']:

@@ -1,2 +1,0 @@
-def arivis():
-    print("TODO")

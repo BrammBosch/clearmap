@@ -9,7 +9,6 @@ from tkfilebrowser import askopendirname
 
 maindir = os.path.abspath(__file__)
 maindir = maindir.replace("run_clearmap_with_GUI.py", "")
-# settingsFileRead = open(maindir + "ClearMap/Settings.py").read()
 with open(maindir + "ClearMap/Settings.py", 'r+') as settingsFileRead:
     data = mmap.mmap(settingsFileRead.fileno(), 0)
     try:
@@ -27,8 +26,6 @@ with open(maindir + "ClearMap/Settings.py", 'r+') as settingsFileRead:
     print(firstSetupElastix)
     print(firstSetupSave)
 
-
-# firstSetup = settingsFileRead.__contains__("placeholderElastix")  # Check if placeholderElastix is in the settings.py file
 
 
 def searchElastix():
@@ -85,6 +82,8 @@ if not firstSetupElastix or not firstSetupSave:
     tk.Label(rootFirstSetup, text="Please refer to the requirements file for all the downloads").grid(padx=4, pady=4,
                                                                                                       sticky='ew')
     tk.Label(rootFirstSetup, text="The path to where elastix is located is mandatory").grid(padx=4, pady=4, sticky='ew')
+    tk.Label(rootFirstSetup, text="A save location is also mandatory").grid(padx=4, pady=4, sticky='ew')
+
     tk.Label(rootFirstSetup, text="The path to ilastik can be left empty if you dont want to use it").grid(padx=4,
                                                                                                            pady=4,
                                                                                                            sticky='ew')

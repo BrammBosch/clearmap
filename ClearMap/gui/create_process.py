@@ -63,11 +63,8 @@ def create_file_process(pathClearMap):
 
 def config_parameter_import(pathClearMap):
     fileConfigAndParameter = "exec(open('" + pathClearMap + "docs/conf.py').read())\nimport ClearMap\n"
-    fileConfigAndParameter += """from ClearMap.alignmentOptions.machineLearning import machineLearning
-from ClearMap.celDetectionOptions.arivisPipeline import arivis
-from ClearMap.celDetectionOptions.importOwnFiles import importOwn
-"""
     fileConfigAndParameter += "exec(open('" + pathClearMap + "ClearMap/Scripts/work_dir/parameter_file.py').read())\n"
+
     return fileConfigAndParameter
 
 
