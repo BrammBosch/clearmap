@@ -12,9 +12,9 @@ from ClearMap.errors.customExceptions import *
 from distutils.dir_util import copy_tree
 from tkinter import simpledialog, messagebox, filedialog
 from tkfilebrowser import askopendirname, askopenfilename
-from ClearMap.Utils.split_CSV import write_landmarks_to_files
 from ClearMap.gui.create_parameter import create_file_parameter
 from ClearMap.gui.create_process import create_file_process
+from ClearMap.gui.manualAlign import manual
 
 root = tk.Tk()
 
@@ -24,7 +24,7 @@ style.theme_use("clam")
 
 pathToGui = os.path.abspath(__file__)
 pathClearMap = pathToGui.replace("ClearMap/gui/tkinter_gui.py", "")
-settingsFileRead = open("ClearMap/Settings.py").read()
+settingsFileRead = open(pathClearMap + "ClearMap/Settings.py").read()
 
 
 def choose_dirs():
@@ -125,7 +125,7 @@ def use_presets():
     pathProtein = pathClearMap + "ClearMap/clearmap_preset_folder/protein"
     pathAtlas = pathClearMap + "ClearMap/clearmap_preset_folder/atlas"
     pathBaseDirectory = pathClearMap + "ClearMap/clearmap_preset_folder/output"
-    text_var.set("Used preset folders")
+    textVar.set("Used preset folders")
 
     try:
         os.chdir(pathProtein)
@@ -218,7 +218,7 @@ def importer():
         shutil.copy(scriptsFolder + "/savedSettings.txt", pathClearMap + "ClearMap/Scripts/work_dir/")
 
         runButtonMain['state'] = 'normal'
-        text_var.set("Imported folder " + nameFolder)
+        textVar.set("Imported folder " + nameFolder)
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "r") as outputFile:
             data = json.load(outputFile)
         data['fromImport'] = True
@@ -566,7 +566,7 @@ def create_run_window():
 
     nextButton.grid(column=2, padx=4, pady=4, sticky='ew')
     runWindow.protocol("WM_DELETE_WINDOW", run_quit)
-
+'''
 
 def manual():
     """
@@ -612,27 +612,8 @@ Go to the landmarks window -> File -> Export landmarks. """).grid(padx=4, pady=4
     manualWindow.protocol("WM_DELETE_WINDOW", manual_quit)
 
     manualWindow.wait_window(manualWindow)
+'''
 
-
-def findLandmarks(rootMA, pathClearMap):
-    """
-    This functoion is called when the user has to select where the landmarks.csv file is located.
-    :param rootMA: This the window where the select landmarks button is called from.
-    :param pathClearMap: The path to where the entire program is saved.
-    :return:
-    """
-    landmarksDir = askopenfilename(parent=rootMA, title="Select landmarks file")
-    print(landmarksDir)
-    pathOutput = pathClearMap + "ClearMap/clearmap_preset_folder/output/landmarks.csv"
-    try:
-        shutil.copyfile(landmarksDir, pathOutput)
-        write_landmarks_to_files(pathClearMap)
-    except FileNotFoundError:
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
-            data = json.load(json_file)
-        data['kill'] = True
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
-            json.dump(data, outputFile)
 
 
 def customRunOptions(nextButton):
@@ -641,9 +622,9 @@ def customRunOptions(nextButton):
 
     with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
         dataRunOptions = json.load(json_file)
-    text_var = tk.StringVar(runOptionsWindow)
-    text_var.set("Please choose an action")
-    tk.Label(runOptionsWindow, textvariable=text_var).grid(padx=4, pady=4, sticky='ew')
+    textVarRun = tk.StringVar(runOptionsWindow)
+    textVarRun.set("Please choose an action")
+    tk.Label(runOptionsWindow, textvariable=textVarRun).grid(padx=4, pady=4, sticky='ew')
     contButton = tk.Button(runOptionsWindow, text="continue", command=runOptionsWindow.destroy)
     contButton.grid(padx=4, pady=4, sticky='ew')
     if dataRunOptions['tableBox'] and dataRunOptions['heatmapBox'] and dataRunOptions['cellDetectionBox'] and \
@@ -654,13 +635,15 @@ def customRunOptions(nextButton):
     else:
         run = True
         if not dataRunOptions['cellDetectionBox'] and not dataRunOptions['resampleBox'] and dataRunOptions[
-            'alignmentBox']:
-            if os.path.exists(pathClearMap + 'ClearMap/clearmap_preset_folder/output/cells.npy') and os.path.exists(pathClearMap + 'ClearMap/clearmap_preset_folder/output/autofluo_for_cfos_resampled.tif') and os.path.exists(pathClearMap + 'ClearMap/clearmap_preset_folder/output/cfos_resampled.tif'):
+                'alignmentBox']:
+            if os.path.exists(pathClearMap + 'ClearMap/clearmap_preset_folder/output/cells.npy') and os.path.exists(
+                    pathClearMap + 'ClearMap/clearmap_preset_folder/output/autofluo_for_cfos_resampled.tif') and os.path.exists(
+                    pathClearMap + 'ClearMap/clearmap_preset_folder/output/cfos_resampled.tif'):
                 run = True
             else:
-                text_var.set("""You have chosen to skip the resampling and celdetection but the alignment needs a
+                textVarRun.set("""You have chosen to skip the resampling and celdetection but the alignment needs a
                         cells.npy file and the resampled files.
-                        Please select a file or go back and select celdetection""")
+                        Please copy the files to the output folder or go back and select resampling and celdetection """)
                 dataRunOptions['kill'] = True
                 run = False
 
@@ -671,46 +654,48 @@ def customRunOptions(nextButton):
 
                 run = True
             else:
-                text_var.set("""You have chosen to skip the celdetection but the alignment needs a cells.npy file. 
-                     please select a file or go back and select celdetection""")
+                textVarRun.set("""You have chosen to skip the celdetection but the alignment needs a cells.npy file. 
+                     Please copy the files to the output folder or go back and select celdetection""")
                 dataRunOptions['kill'] = True
                 run = False
 
         if run and not dataRunOptions['resampleBox'] and dataRunOptions['alignmentBox']:
 
-            if os.path.exists(pathClearMap + 'ClearMap/clearmap_preset_folder/output/autofluo_for_cfos_resampled.tif') and os.path.exists(pathClearMap + 'ClearMap/clearmap_preset_folder/output/cfos_resampled.tif'):
+            if os.path.exists(
+                    pathClearMap + 'ClearMap/clearmap_preset_folder/output/autofluo_for_cfos_resampled.tif') and os.path.exists(
+                    pathClearMap + 'ClearMap/clearmap_preset_folder/output/cfos_resampled.tif'):
 
                 run = True
             else:
-                text_var.set("""You have chosen to skip the resampling but the alignment needs the resampled tif files. 
-                please select a file or go back and select celdetection""")
+                textVarRun.set("""You have chosen to skip the resampling but the alignment needs the resampled tif files. 
+                        Please copy the files to the output folder or go back and select celdetection""")
                 dataRunOptions['kill'] = True
                 run = False
 
         if run and not dataRunOptions['cellDetectionBox'] and dataRunOptions['heatmapBox']:
             if os.path.exists(
                     pathClearMap + 'ClearMap/clearmap_preset_folder/output/intensities.npy') and os.path.exists(
-                pathClearMap + 'ClearMap/clearmap_preset_folder/output/cells_transformed_to_Atlas.npy'):
+                    pathClearMap + 'ClearMap/clearmap_preset_folder/output/cells_transformed_to_Atlas.npy'):
                 run = True
             else:
-                text_var.set("""You have chosen to skip the celdetection but the heatmap creation needs a intensities.npy file and a cells_transformed_to_Atlas.npy file.
-                        please select a file or go back and select celdetection""")
+                textVarRun.set("""You have chosen to skip the celdetection but the heatmap creation needs a intensities.npy file and a cells_transformed_to_Atlas.npy file.
+                        Please copy the files to the output folder or go back and select celdetection""")
                 dataRunOptions['kill'] = True
                 run = False
         if run and not dataRunOptions['cellDetectionBox'] and dataRunOptions['tableBox']:
             if os.path.exists(
                     pathClearMap + 'ClearMap/clearmap_preset_folder/output/intensities.npy') and os.path.exists(
-                pathClearMap + 'ClearMap/clearmap_preset_folder/output/cells_transformed_to_Atlas.npy'):
+                    pathClearMap + 'ClearMap/clearmap_preset_folder/output/cells_transformed_to_Atlas.npy'):
                 run = True
             else:
-                text_var.set("""You have chosen to skip the celdetection but the table creation needs a intensities.npy file and a cells_transformed_to_Atlas.npy file.
-                       please select a file or go back and select celdetection""")
+                textVarRun.set("""You have chosen to skip the celdetection but the table creation needs a intensities.npy file and a cells_transformed_to_Atlas.npy file.
+                       Please copy the files to the output folder or go back and select celdetection""")
                 dataRunOptions['kill'] = True
                 run = False
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
             json.dump(dataRunOptions, outputFile)
         print(run)
-        if run == True:
+        if run:
             runOptionsWindow.destroy()
             create_settings_window(nextButton)
 
@@ -722,13 +707,16 @@ def call_file():
     saved settings file.
     :return:
     """
-    text_var.set("Starting")
+    textVar.set("Starting")
 
     with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
         dataLoaded = json.load(json_file)
-    if "Manual" in dataLoaded['alignmentOperation']:
-        manual()
-    # customRunOptions()
+    if not dataLoaded['kill']:
+        if "Manual" in dataLoaded['alignmentOperation']:
+            manual(root,pathClearMap)
+        if "Import" in dataLoaded['cellDetection']:
+            pass
+        
     with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
         dataLoaded = json.load(json_file)
     if dataLoaded['kill']:
@@ -745,7 +733,7 @@ def call_file():
 
         exec(open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py").read())
 
-    text_var.set("Done with the current operation")
+    textVar.set("Done with the current operation")
     if not dataLoaded['kill']:
         if dataLoaded['baseDir'] == pathClearMap + "ClearMap/clearmap_preset_folder/output":
             try:
@@ -794,9 +782,9 @@ manualButton.grid(row=2, column=0, padx=4, pady=4, sticky='ew')
 importButton.grid(row=3, column=0, padx=4, pady=4, sticky='ew')
 runButtonMain.grid(row=5, column=0, padx=4, pady=4, sticky='ew')
 
-text_var = tk.StringVar(root)
-text_var.set("Please choose an action")
-tk.Label(root, textvariable=text_var).grid(row=1, column=2, padx=4, pady=4, sticky='ew')
+textVar = tk.StringVar(root)
+textVar.set("Please choose an action")
+tk.Label(root, textvariable=textVar).grid(row=1, column=2, padx=4, pady=4, sticky='ew')
 
 
 def run_gui():

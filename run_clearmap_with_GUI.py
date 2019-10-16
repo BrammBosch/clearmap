@@ -103,6 +103,5 @@ if not firstSetupElastix or not firstSetupSave:
 
     rootFirstSetup.mainloop()
 
-import ClearMap.gui.tkinter_gui
-
-ClearMap.gui.tkinter_gui.run_gui()
+from ClearMap.gui.tkinter_gui import run_gui
+run_gui()
