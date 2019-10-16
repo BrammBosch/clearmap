@@ -33,13 +33,7 @@ def create_file_process(pathClearMap):
             finalOutput += aligment_clearMap()
             temp = transform_point_coordinates()
     if data['cellDetectionBox']:
-        if "arivis" in data['cellDetection']:
-            finalOutput += detection_arivis()
-
-        elif "Import" in data['cellDetection']:
-            finalOutput += detection_import()
-
-        else:
+        if "clearmap" in data['cellDetection']:
             finalOutput += detection_clearmap()
     if data['alignmentBox']:
         finalOutput += temp
@@ -97,14 +91,6 @@ def detection_clearmap():
     detection += 'points, intensities = io.readPoints(ImageProcessingParameter["sink"]);\n'
     detection += 'points, intensities = thresholdPoints(points, intensities, threshold = (20, 900), row = (3,3));\n'
     detection += 'io.writePoints(FilteredCellsFile, (points, intensities));\n'
-    return detection
-
-def detection_arivis():
-    detection = "arivis()\n"
-    return detection
-
-def detection_import():
-    detection = "importOwn()\n"
     return detection
 
 def transform_point_coordinates():

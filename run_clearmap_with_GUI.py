@@ -27,7 +27,6 @@ with open(maindir + "ClearMap/Settings.py", 'r+') as settingsFileRead:
     print(firstSetupSave)
 
 
-
 def searchElastix():
     """
     This function opens a dir chooser which asks the user to select the folder where elastix is installed
@@ -40,7 +39,6 @@ def searchElastix():
     settingsFileRead = re.sub('("mark")\nElastix.*', '"mark"\nElastixPath = "' + elastixPath + '";', settingsFileRead)
     settingsFileWrite = open(maindir + "ClearMap/Settings.py", "w")
     settingsFileWrite.write(settingsFileRead)
-
 
 
 def searchIlastik():
@@ -65,7 +63,6 @@ def saveLocation():
 
     settingsFileWrite = open(maindir + "ClearMap/Settings.py", "w")
     settingsFileWrite.write(settingsFileRead)
-
 
 
 """
@@ -100,8 +97,8 @@ if not firstSetupElastix or not firstSetupSave:
     quitButton = tk.Button(rootFirstSetup, state=tk.DISABLED, text="Run clearmap", command=rootFirstSetup.destroy)
     quitButton.grid(padx=4, pady=4, sticky='ew')
 
-
     rootFirstSetup.mainloop()
 
 from ClearMap.gui.tkinter_gui import run_gui
+
 run_gui()

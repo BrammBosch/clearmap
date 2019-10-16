@@ -19,10 +19,11 @@ def call_file(root,pathClearMap):
     with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
         dataLoaded = json.load(json_file)
     if not dataLoaded['kill']:
-        if "Manual" in dataLoaded['alignmentOperation']:
-            manual(root, pathClearMap)
         if "Import" in dataLoaded['cellDetection']:
             import_cell(root, pathClearMap)
+        if "Manual" in dataLoaded['alignmentOperation']:
+            manual(root, pathClearMap)
+
 
     with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
         dataLoaded = json.load(json_file)

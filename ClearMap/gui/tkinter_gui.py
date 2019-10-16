@@ -19,10 +19,6 @@ pathToGui = os.path.abspath(__file__)
 pathClearMap = pathToGui.replace("ClearMap/gui/tkinter_gui.py", "")
 settingsFileRead = open(pathClearMap + "ClearMap/Settings.py").read()
 
-
-
-
-
 presetButton = tk.Button(root, text="Use preset folder",
                          command=lambda: [use_presets(pathClearMap, runButtonMain, textVar)])
 manualButton = tk.Button(root, text="Choose each folder",
@@ -52,8 +48,8 @@ def run_gui():
     # clear_folder(folder)
     # This clears the output folder in the preset.
 
-    folder = pathClearMap + "ClearMap/Scripts/work_dir"
-    clear_folder(folder)
+    #folder = pathClearMap + "ClearMap/Scripts/work_dir"
+    #clear_folder(folder)
     # This empties the work directory before the gui runs
 
     root.mainloop()
