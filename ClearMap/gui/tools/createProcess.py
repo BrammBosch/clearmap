@@ -19,8 +19,11 @@ def create_file_process(pathClearMap):
 
 
     finalOutput = config_parameter_import(pathClearMap)
+
     if data['resampleBox']:
         finalOutput += resampling_operations()
+    temp = transform_point_coordinates()
+
     if data['alignmentBox']:
         if "Manual"in data['alignmentOperation']:
             finalOutput += alignment_manual()
@@ -28,18 +31,15 @@ def create_file_process(pathClearMap):
 
         elif "Machine" in data['alignmentOperation']:
             finalOutput += alignment_machineLearning()
-            temp = transform_point_coordinates()
         else:
             finalOutput += aligment_clearMap()
-            temp = transform_point_coordinates()
     if data['cellDetectionBox']:
         if "clearmap" in data['cellDetection']:
             finalOutput += detection_clearmap()
-    if data['alignmentBox']:
-        finalOutput += temp
 
     if data['tableBox'] or data['heatmapBox']:
         finalOutput += points_intensities()
+        finalOutput += temp
 
     if data['heatmapBox'] == True:
         finalOutput += heatmap()
@@ -117,6 +117,9 @@ points = transformPoints(points, transformDirectory = RegistrationAlignmentParam
 io.writePoints(TransformedCellsFile, points);   
 """
     return transform
+def test():
+    a = "io.writePoints(TransformedCellsFile, points);"
+    return a
 
 def points_intensities():
     pointsAndIntensities = "points = io.readPoints(TransformedCellsFile)\n"

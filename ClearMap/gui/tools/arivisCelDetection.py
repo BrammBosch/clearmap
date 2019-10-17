@@ -22,19 +22,20 @@ def arivis_cel_detection(importCelWindow, pathClearMap):
             for h, v in zip(headers, row):
                 column[h].append(v)
 
-
         xValues = [int(float(x)) for x in column['"X (px), Center of Geometry"']]
         yValues = [int(float(x)) for x in column['"Y (px), Center of Geometry"']]
         zValues = [int(float(x)) for x in column['"Z (px), Center of Geometry"']]
+
         cellsList = []
-
+        intensList = []
         for count, item in enumerate(xValues):
-
+            intensList.append(["-", "-", "-", column['"Mean, Intensities #1"']])
             cellsList.append([xValues[count], yValues[count], zValues[count]])
         np.save(pathClearMap + "ClearMap/clearmap_preset_folder/output/cells.npy", np.array(cellsList))
-
+        np.save(pathClearMap + "ClearMap/clearmap_preset_folder/output/intensities.npy", np.array(intensList))
 
     except Exception as e:
+        print(e)
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
             data = json.load(json_file)
         data['kill'] = True
