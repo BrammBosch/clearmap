@@ -24,8 +24,6 @@ with open(maindir + "ClearMap/Settings.py", 'r+') as settingsFileRead:
         firstSetupSave = False
 
 
-
-
 def searchElastix():
     """
     This function opens a dir chooser which asks the user to select the folder where elastix is installed

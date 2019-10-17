@@ -1,8 +1,11 @@
 import json
-
 import numpy as np
 from tkfilebrowser import askopenfilename
 import csv
+
+
+def cel_detection(importCelWindow, pathClearMap):
+    arivis_cel_detection(importCelWindow, pathClearMap)
 
 
 def arivis_cel_detection(importCelWindow, pathClearMap):
@@ -27,7 +30,7 @@ def arivis_cel_detection(importCelWindow, pathClearMap):
         intensList = []
         for count, item in enumerate(xValues):
             intensList.append(["0", "0", column['"Mean, Intensities #1"'][count],
-                              column['"VoxelCount, Volume"'][count]])
+                               column['"VoxelCount, Volume"'][count]])
             cellsList.append([xValues[count], yValues[count], zValues[count]])
         np.save(pathClearMap + "ClearMap/clearmap_preset_folder/output/cells.npy", np.array(cellsList),
                 allow_pickle=True, fix_imports=True)

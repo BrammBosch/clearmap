@@ -36,7 +36,8 @@ def create_file_process(pathClearMap):
     if data['cellDetectionBox']:
         if "clearmap" in data['cellDetection']:
             finalOutput += detection_clearmap()
-
+        else:
+            finalOutput += detection_manual()
     if data['tableBox'] or data['heatmapBox']:
         finalOutput += temp
         finalOutput += points_intensities()
@@ -94,6 +95,12 @@ def detection_clearmap():
     detection += 'io.writePoints(FilteredCellsFile, (points, intensities));\n'
     return detection
 
+def detection_manual():
+    #detection = 'points, intensities = io.readPoints(ImageProcessingParameter["sink"]);\n'
+    detection = 'points, intensities = thresholdPoints(points, intensities, threshold = (20, 900), row = (3,3));\n'
+    detection += 'io.writePoints(FilteredCellsFile, (points, intensities));\n'
+    return detection
+
 def transform_point_coordinates():
     transform = """points = io.readPoints(CorrectionResamplingPointsParameter["pointSource"]);
 points = resamplePoints(**CorrectionResamplingPointsParameter);
@@ -126,9 +133,7 @@ def points_intensities():
     return pointsAndIntensities
 
 def heatmap():
-    heatmapText = """points = io.readPoints(TransformedCellsFile)
-intensities = io.readPoints(FilteredCellsFile[1])
-vox = voxelize(points, AtlasFile, **voxelizeParameter);
+    heatmapText = """vox = voxelize(points, AtlasFile, **voxelizeParameter);
 if not isinstance(vox, str):
     io.writeData(os.path.join(BaseDirectory, 'cells_heatmap.tif'), vox.astype('int32'));
 voxelizeParameter["weights"] = intensities[:,0].astype(float);

@@ -1,7 +1,7 @@
 import json
 import tkinter as tk
 
-from ClearMap.gui.tools.arivisCelDetection import arivis_cel_detection
+from ClearMap.gui.tools.arivisCelDetection import cel_detection
 
 
 def import_cell(root, pathClearMap):
@@ -12,7 +12,7 @@ def import_cell(root, pathClearMap):
      
      """).grid(padx=4, pady=4, sticky='ew')
     findCellFile = tk.Button(importCellWindow, text="Search for the landmarks file",
-                                    command=lambda: [arivis_cel_detection(importCellWindow, pathClearMap),
+                                    command=lambda: [cel_detection(importCellWindow, pathClearMap),
                                                      importCellWindow.destroy()])
     findCellFile.grid(padx=4, pady=4, sticky='ew')
 
