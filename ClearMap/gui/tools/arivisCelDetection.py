@@ -5,22 +5,35 @@ import csv
 
 
 def cel_detection(importCelWindow, pathClearMap):
-    arivis_cel_detection(importCelWindow, pathClearMap)
-
-
-def arivis_cel_detection(importCelWindow, pathClearMap):
+    cellsDir = askopenfilename(parent=importCelWindow, title="Select the csv file with the detected cells")
     try:
-        cellsDir = askopenfilename(parent=importCelWindow, title="Select the csv file with the detected cells")
         f = open(cellsDir, 'r')
         reader = csv.reader(f)
         headers = next(reader, None)
-
         column = {}
         for h in headers:
             column[h] = []
         for row in reader:
             for h, v in zip(headers, row):
                 column[h].append(v)
+
+        if '"X (px), Center of Geometry"' in column and '"Mean, Intensities #1"' in column:
+            arivis_cel_detection(pathClearMap, column)
+
+        else:
+            cel_detection_without_int(pathClearMap, cellsDir)
+
+    except Exception as e:
+        print(e)
+        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
+            data = json.load(json_file)
+        data['kill'] = True
+        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
+            json.dump(data, outputFile)
+
+
+def arivis_cel_detection(pathClearMap, column):
+    try:
 
         xValues = [int(float(x)) for x in column['"X (px), Center of Geometry"']]
         yValues = [int(float(x)) for x in column['"Y (px), Center of Geometry"']]
@@ -44,3 +57,12 @@ def arivis_cel_detection(importCelWindow, pathClearMap):
         data['kill'] = True
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
             json.dump(data, outputFile)
+
+
+def cel_detection_without_int(pathClearMap, cellsDir):
+    f = open(cellsDir, 'r')
+    cellsList = []
+    for line in f:
+        cellsList.append(line.split(','))
+    np.save(pathClearMap + "ClearMap/clearmap_preset_folder/output/cells.npy", np.array(cellsList),
+            allow_pickle=True, fix_imports=True)
