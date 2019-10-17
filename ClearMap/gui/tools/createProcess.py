@@ -96,8 +96,8 @@ def detection_clearmap():
     return detection
 
 def detection_manual():
-    #detection = 'points, intensities = io.readPoints(ImageProcessingParameter["sink"]);\n'
-    detection = 'points, intensities = thresholdPoints(points, intensities, threshold = (20, 900), row = (3,3));\n'
+    detection = 'points, intensities = io.readPoints(ImageProcessingParameter["sink"]);\n'
+    detection += 'points, intensities = thresholdPoints(points, intensities, threshold = (20, 900), row = (3,3));\n'
     detection += 'io.writePoints(FilteredCellsFile, (points, intensities));\n'
     return detection
 

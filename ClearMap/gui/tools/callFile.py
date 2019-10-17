@@ -8,7 +8,7 @@ from ClearMap.gui.tools.importCells import import_cell
 from ClearMap.gui.windows.manualAlign import manual
 
 
-def call_file(root,pathClearMap):
+def call_file(root, pathClearMap):
     """
     This is the last function that is called, it runs the process_template file which starts clearmap.
     It also checks if it should kill the program before it begins by looking at the kill parameter in the
@@ -26,7 +26,6 @@ def call_file(root,pathClearMap):
             if "Manual" in dataLoaded['alignmentOperation']:
                 manual(root, pathClearMap)
 
-
     with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
         dataLoaded = json.load(json_file)
     if dataLoaded['kill']:
@@ -43,7 +42,7 @@ def call_file(root,pathClearMap):
 
         exec(open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py").read())
 
-    #textVar.set("Done with the current operation")
+    # textVar.set("Done with the current operation")
     if not dataLoaded['kill']:
         if dataLoaded['baseDir'] == pathClearMap + "ClearMap/clearmap_preset_folder/output":
             try:

@@ -1,7 +1,7 @@
+import json
 import os
 import tkinter as tk
 import tkinter.ttk as ttk
-from ClearMap.gui.tools.clearFolder import clear_folder
 from ClearMap.gui.windows.importer import importer
 from ClearMap.gui.windows.runWindow import create_run_window
 from ClearMap.gui.windows.chooseDirs import choose_dirs
@@ -37,6 +37,19 @@ textVar.set("Please choose an action")
 tk.Label(root, textvariable=textVar).grid(row=1, column=2, padx=4, pady=4, sticky='ew')
 
 
+def root_quit():
+    """
+
+    :return:
+    """
+    root.destroy()
+    with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as outputFileRunSettingsKill:
+        dataKillRunSettings = json.load(outputFileRunSettingsKill)
+    dataKillRunSettings['kill'] = True
+    with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
+        json.dump(dataKillRunSettings, outputFile)
+
+
 def run_gui():
     """
     This function starts by clearing out the work_dir folder and the output folder.
@@ -48,8 +61,11 @@ def run_gui():
     # clear_folder(folder)
     # This clears the output folder in the preset.
 
-    #folder = pathClearMap + "ClearMap/Scripts/work_dir"
-    #clear_folder(folder)
+    # folder = pathClearMap + "ClearMap/Scripts/work_dir"
+    # clear_folder(folder)
     # This empties the work directory before the gui runs
 
     root.mainloop()
+
+
+root.protocol("WM_DELETE_WINDOW", root_quit)

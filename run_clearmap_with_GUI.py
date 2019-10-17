@@ -1,7 +1,7 @@
+__author__ = "Bram Bosch"
+
 import mmap
 import re
-
-__author__ = "Bram Bosch"
 import os
 import tkinter as tk
 import tkinter.ttk as ttk
