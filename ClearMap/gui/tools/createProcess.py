@@ -38,8 +38,9 @@ def create_file_process(pathClearMap):
             finalOutput += detection_clearmap()
 
     if data['tableBox'] or data['heatmapBox']:
-        finalOutput += points_intensities()
         finalOutput += temp
+        finalOutput += points_intensities()
+
 
     if data['heatmapBox'] == True:
         finalOutput += heatmap()
@@ -117,9 +118,7 @@ points = transformPoints(points, transformDirectory = RegistrationAlignmentParam
 io.writePoints(TransformedCellsFile, points);   
 """
     return transform
-def test():
-    a = "io.writePoints(TransformedCellsFile, points);"
-    return a
+
 
 def points_intensities():
     pointsAndIntensities = "points = io.readPoints(TransformedCellsFile)\n"

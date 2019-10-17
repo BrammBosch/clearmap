@@ -23,8 +23,7 @@ with open(maindir + "ClearMap/Settings.py", 'r+') as settingsFileRead:
     except AttributeError:
         firstSetupSave = False
 
-    print(firstSetupElastix)
-    print(firstSetupSave)
+
 
 
 def searchElastix():

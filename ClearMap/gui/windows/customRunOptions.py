@@ -21,7 +21,6 @@ def custom_run_options(nextButton,pathClearMap,root):
         create_settings_window(nextButton,root,pathClearMap)
 
     else:
-        print(dataRunOptions)
         run = True
         if not dataRunOptions['cellDetectionBox'] and not dataRunOptions['resampleBox'] and dataRunOptions[
             'alignmentBox']:
@@ -80,7 +79,6 @@ def custom_run_options(nextButton,pathClearMap,root):
                 run = False
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
             json.dump(dataRunOptions, outputFile)
-        print(run)
         if run:
             runOptionsWindow.destroy()
             create_settings_window(nextButton,root,pathClearMap)

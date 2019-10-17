@@ -1,5 +1,4 @@
 import json
-import sys
 
 import numpy as np
 from tkfilebrowser import askopenfilename
@@ -9,11 +8,9 @@ import csv
 def arivis_cel_detection(importCelWindow, pathClearMap):
     try:
         cellsDir = askopenfilename(parent=importCelWindow, title="Select the csv file with the detected cells")
-        print(cellsDir)
         f = open(cellsDir, 'r')
         reader = csv.reader(f)
         headers = next(reader, None)
-        print(headers)
 
         column = {}
         for h in headers:
@@ -29,10 +26,13 @@ def arivis_cel_detection(importCelWindow, pathClearMap):
         cellsList = []
         intensList = []
         for count, item in enumerate(xValues):
-            intensList.append(["-", "-", "-", column['"Mean, Intensities #1"']])
+            intensList.append(["0", "0", column['"Mean, Intensities #1"'][count],
+                              column['"VoxelCount, Volume"'][count]])
             cellsList.append([xValues[count], yValues[count], zValues[count]])
-        np.save(pathClearMap + "ClearMap/clearmap_preset_folder/output/cells.npy", np.array(cellsList))
-        np.save(pathClearMap + "ClearMap/clearmap_preset_folder/output/intensities.npy", np.array(intensList))
+        np.save(pathClearMap + "ClearMap/clearmap_preset_folder/output/cells.npy", np.array(cellsList),
+                allow_pickle=True, fix_imports=True)
+        np.save(pathClearMap + "ClearMap/clearmap_preset_folder/output/intensities.npy", np.array(intensList),
+                allow_pickle=True, fix_imports=True)
 
     except Exception as e:
         print(e)

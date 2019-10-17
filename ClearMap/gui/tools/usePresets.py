@@ -20,24 +20,39 @@ def use_presets(pathClearMap,runButtonMain,textVar):
     pathAtlas = pathClearMap + "ClearMap/clearmap_preset_folder/atlas"
     pathBaseDirectory = pathClearMap + "ClearMap/clearmap_preset_folder/output"
     textVar.set("Used preset folders")
+    run = True
+
+
+
+    try:
+        os.chdir(pathAtlas)
+    except FileNotFoundError:
+        messagebox.showinfo("ERROR", "The atlas folder doesn't seem to exist")
+        run = False
+
+    try:
+        os.chdir(pathBaseDirectory)
+    except FileNotFoundError:
+        os.mkdir(pathBaseDirectory)
+
+    try:
+        os.chdir(pathAutoFluo)
+    except FileNotFoundError:
+        messagebox.showinfo("ERROR", "The auto fluo folder doesn't seem to exist")
+        run = False
+    for file in glob.glob("*.tif"):
+        fileAutoFluo = file
+        break
+
 
     try:
         os.chdir(pathProtein)
 
     except FileNotFoundError:
         messagebox.showinfo("ERROR", "The protein folder doesn't seem to exist")
-        sys.exit()
+        run = False
     for file in glob.glob("*.tif"):
         fileProtein = file
-        break
-
-    try:
-        os.chdir(pathAutoFluo)
-    except FileNotFoundError:
-        messagebox.showinfo("ERROR", "The auto fluo folder doesn't seem to exist")
-        sys.exit()
-    for file in glob.glob("*.tif"):
-        fileAutoFluo = file
         break
 
     try:
@@ -45,8 +60,17 @@ def use_presets(pathClearMap,runButtonMain,textVar):
         fileAutoFluo = re.sub(r'Z[0-9]{4}', 'Z\\\\d{4}', fileAutoFluo)
     except:
         pass
-    pathAutoFluo += "/" + fileAutoFluo
-    pathProtein += "/" + fileProtein
+    if run == True:
+        try:
+            pathAutoFluo += "/" + fileAutoFluo
+        except UnboundLocalError:
+            messagebox.showinfo("ERROR", "The auto fluo folder doesn't contain any tif images")
+            run = False
+        try:
+            pathProtein += "/" + fileProtein
+        except UnboundLocalError:
+            messagebox.showinfo("ERROR", "The protein folder doesn't contain any tif images")
+            run = False
 
     data['autoFluoDir'] = pathAutoFluo
     data['proteinDir'] = pathProtein
@@ -60,4 +84,5 @@ def use_presets(pathClearMap,runButtonMain,textVar):
         os.mkdir(pathClearMap + "ClearMap/Scripts/work_dir")
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w+") as outputFile:
             json.dump(data, outputFile)
-    runButtonMain['state'] = 'normal'
+    if run:
+        runButtonMain['state'] = 'normal'
