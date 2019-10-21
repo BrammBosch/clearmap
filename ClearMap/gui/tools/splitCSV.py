@@ -1,4 +1,8 @@
+import json
+
 __author__ = "Bram Bosch"
+
+
 def write_landmarks_to_files(pathClearMap):
     """
     This function opens the landmarks.csv file created by manual aligning points and creates the 2 needed output files.
@@ -11,6 +15,9 @@ def write_landmarks_to_files(pathClearMap):
     All the next lines contain 3 columns of coordinates separated by spaces.
     No returns are necessary since everything is exported to the files.
     """
+
+    with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "r") as outputFile:
+        data = json.load(outputFile)
     landmarks_file = open(pathClearMap + "ClearMap/clearmap_preset_folder/output/landmarks.csv")
     fluo = open(pathClearMap + "ClearMap/clearmap_preset_folder/output/autofluo_landmarks.txt", "w+")
     atlas = open(pathClearMap + "ClearMap/clearmap_preset_folder/output/atlas_landmarks.txt", "w+")
@@ -24,8 +31,10 @@ def write_landmarks_to_files(pathClearMap):
     i = 0
     for line in landmarks_file:
         line = line.split(",")
-        output_atlas_temp += str(float(line[2]) * 0.04) + " " + str(float(line[3]) * 0.04) + " " + str(
-            float(line[4]) * 0.04) + "\n"
+
+        output_atlas_temp += str(float(line[2]) * (100 / float(data['atlasX']))) + " " + \
+                             str(float(line[3]) * (100 / float(data['atlasX']))) + " " + \
+                             str(float(line[4]) * (100 / float(data['atlasX']))) + "\n"
         output_fluo_temp += line[5] + " " + line[6] + " " + line[7]
         i += 1
 

@@ -17,7 +17,6 @@ def create_file_process(pathClearMap):
     with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "r") as outputFile:
         data = json.load(outputFile)
 
-
     finalOutput = config_parameter_import(pathClearMap)
 
     if data['resampleBox']:
@@ -25,7 +24,7 @@ def create_file_process(pathClearMap):
     temp = transform_point_coordinates()
 
     if data['alignmentBox']:
-        if "Manual"in data['alignmentOperation']:
+        if "Manual" in data['alignmentOperation']:
             finalOutput += alignment_manual()
             temp = transform_point_coordinates_manual()
 
@@ -36,25 +35,24 @@ def create_file_process(pathClearMap):
     if data['cellDetectionBox']:
         if "clearmap" in data['cellDetection']:
             finalOutput += detection_clearmap()
-        else:
-            finalOutput += detection_manual()
+        # else:
+        #    finalOutput += detection_manual()
     if data['tableBox'] or data['heatmapBox']:
         finalOutput += temp
         finalOutput += points_intensities()
 
-
     if data['heatmapBox'] == True:
         finalOutput += heatmap()
+        finalOutput += heatmap_weighted()
+
 
     if data['tableBox'] == True:
         finalOutput += table()
-
-
+        finalOutput += table_weighted()
 
     processFile = open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py", "w+")
 
     processFile.write(finalOutput)
-
 
 
 def config_parameter_import(pathClearMap):
@@ -88,6 +86,7 @@ def alignment_machineLearning():
     alignment = "machineLearning()\n"
     return alignment
 
+
 def detection_clearmap():
     detection = 'detectCells(**ImageProcessingParameter);\n'
     detection += 'points, intensities = io.readPoints(ImageProcessingParameter["sink"]);\n'
@@ -95,11 +94,13 @@ def detection_clearmap():
     detection += 'io.writePoints(FilteredCellsFile, (points, intensities));\n'
     return detection
 
+
 def detection_manual():
     detection = 'points, intensities = io.readPoints(ImageProcessingParameter["sink"]);\n'
     detection += 'points, intensities = thresholdPoints(points, intensities, threshold = (20, 900), row = (3,3));\n'
     detection += 'io.writePoints(FilteredCellsFile, (points, intensities));\n'
     return detection
+
 
 def transform_point_coordinates():
     transform = """points = io.readPoints(CorrectionResamplingPointsParameter["pointSource"]);
@@ -114,6 +115,7 @@ io.writePoints(TransformedCellsFile, points);
 """
     return transform
 
+#is maybe useless
 def transform_point_coordinates_manual():
     transform = """points = io.readPoints(CorrectionResamplingPointsParameter["pointSource"]);
 points = resamplePoints(**CorrectionResamplingPointsParameter);
@@ -132,16 +134,22 @@ def points_intensities():
     pointsAndIntensities += "intensities = io.readPoints(FilteredCellsFile[1])\n"
     return pointsAndIntensities
 
+
 def heatmap():
     heatmapText = """vox = voxelize(points, AtlasFile, **voxelizeParameter);
 if not isinstance(vox, str):
     io.writeData(os.path.join(BaseDirectory, 'cells_heatmap.tif'), vox.astype('int32'));
 voxelizeParameter["weights"] = intensities[:,0].astype(float);
+"""
+    return heatmapText
+def heatmap_weighted():
+    heatmapWeightedText = """
 vox = voxelize(points, AtlasFile, **voxelizeParameter);
 if not isinstance(vox, str):
     io.writeData(os.path.join(BaseDirectory, 'cells_heatmap_weighted.tif'), vox.astype('int32'));
 """
-    return heatmapText
+    return heatmapWeightedText
+
 
 def table():
     tableText = """ids, counts = countPointsInRegions(points, labeledImage = AnnotationFile, intensities = intensities, intensityRow = 0);
@@ -150,11 +158,16 @@ table["id"] = ids;
 table["counts"] = counts;
 table["name"] = labelToName(ids);
 io.writeTable(os.path.join(BaseDirectory, 'Annotated_counts_intensities.csv'), table);
-ids, counts = countPointsInRegions(points, labeledImage = AnnotationFile, intensities = None);
+"""
+    return tableText
+
+
+def table_weighted():
+    tableWeightedText = """ids, counts = countPointsInRegions(points, labeledImage = AnnotationFile, intensities = None);
 table = numpy.zeros(ids.shape, dtype=[('id','int64'),('counts','f8'),('name', 'a256')])
 table["id"] = ids;
 table["counts"] = counts;
 table["name"] = labelToName(ids);
 io.writeTable(os.path.join(BaseDirectory, 'Annotated_counts.csv'), table);
 """
-    return tableText
+    return tableWeightedText

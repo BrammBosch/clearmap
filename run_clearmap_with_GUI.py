@@ -1,11 +1,13 @@
-__author__ = "Bram Bosch"
-
+import sys
 import mmap
 import re
 import os
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkfilebrowser import askopendirname
+
+__author__ = "Bram Bosch"
+
 
 maindir = os.path.abspath(__file__)
 maindir = maindir.replace("run_clearmap_with_GUI.py", "")
@@ -95,7 +97,16 @@ if not firstSetupElastix or not firstSetupSave:
     quitButton.grid(padx=4, pady=4, sticky='ew')
 
     rootFirstSetup.mainloop()
+    def manual_quit():
+        """
+        If the window is closed this function is called which kills the program
+        :return:
+        """
 
+        rootFirstSetup.destroy()
+        sys.exit()
+
+    rootFirstSetup.protocol("WM_DELETE_WINDOW", manual_quit)
 from ClearMap.gui.tkinter_gui import run_gui
 
 run_gui()

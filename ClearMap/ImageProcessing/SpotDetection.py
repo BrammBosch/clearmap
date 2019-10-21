@@ -91,7 +91,7 @@ def detectSpots(img, detectSpotsParameter = None, correctIlluminationParameter =
     """
 
     timer = Timer();
-    
+
     # normalize data -> to check
     #img = img.astype('float');
     #dmax = 0.075 * 65535;
@@ -142,7 +142,7 @@ def detectSpots(img, detectSpotsParameter = None, correctIlluminationParameter =
         centers = findCenterOfMaxima(img, imgmax, verbose = verbose, out = out, **parameter);
     else:
         centers = findPixelCoordinates(imgmax, verbose = verbose, out = out, **parameter);
-    
+
     #cell size detection
     detectCellShapeParameter = getParameter(detectSpotsParameter, "detectCellShapeParameter", detectCellShapeParameter);
     cellShapeThreshold = getParameter(detectCellShapeParameter, "threshold", None);

@@ -22,7 +22,6 @@ def create_run_window(root, pathClearMap, runButtonMain, importButton, presetBut
     varAlignmentData = tk.StringVar(runWindow)
     internalClearmapDetectionChoice = 'Internal clearmap cell detection'
     importChoice = 'Import your own cell detection'
-    # arivisChoice = 'Use arivis'
     internalClearmapAlignChoice = 'Internal clearmap alignment'
     manualChoice = "Manual using imageJ"
     machineLearningChoice = "Machine learning"

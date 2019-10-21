@@ -4,8 +4,11 @@ from tkfilebrowser import askopenfilename
 import csv
 
 
+
+
 def cel_detection(importCelWindow, pathClearMap):
     cellsDir = askopenfilename(parent=importCelWindow, title="Select the csv file with the detected cells")
+
     try:
         f = open(cellsDir, 'r')
         reader = csv.reader(f)
@@ -25,6 +28,7 @@ def cel_detection(importCelWindow, pathClearMap):
 
     except Exception as e:
         print(e)
+
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
             data = json.load(json_file)
         data['kill'] = True
@@ -59,10 +63,15 @@ def arivis_cel_detection(pathClearMap, column):
             json.dump(data, outputFile)
 
 
-def cel_detection_without_int(pathClearMap, cellsDir):
+def cel_detection_without_int(pathClearMap, cellsDir, **parameter):
+
     f = open(cellsDir, 'r')
     cellsList = []
     for line in f:
-        cellsList.append(line.split(','))
+        line = line.strip().split(',')
+        print(line)
+        line = [int(float(x)) for x in line]
+        cellsList.append(line)
     np.save(pathClearMap + "ClearMap/clearmap_preset_folder/output/cells.npy", np.array(cellsList),
             allow_pickle=True, fix_imports=True)
+

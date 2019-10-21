@@ -39,7 +39,8 @@ tk.Label(root, textvariable=textVar).grid(row=1, column=2, padx=4, pady=4, stick
 
 def root_quit():
     """
-
+    This function is called when the use quits the root function. It kills any running toplevels by destroying itself.
+    It also set kill to True so the pipeline can't accidentally run.
     :return:
     """
     root.destroy()

@@ -11,8 +11,8 @@ def manual(root,pathClearMap):
     manualWindow = tk.Toplevel(root)
     manualWindow.title("Clearmap")
 
-    tk.Label(manualWindow, text="""Open the "autofluo_resampled.tif file and the "template_25.tif" file in ImageJ. 
-Go to Plugins -> Big Data Viewer -> Bigwarp. Open template_25 first, then autofluo_resampled. 
+    tk.Label(manualWindow, text="""Open the "autofluo_resampled.tif file and the template file in ImageJ. 
+Go to Plugins -> Big Data Viewer -> Bigwarp. Open the template first, then autofluo_resampled. 
 In both images, hit Shift + A to flip both to coronal view. 
 Scroll around and match the files as closely as possible 
 (left click + pull around to tilt your plane of view in 3d. Ctrl + Y to reset to starter view.)
