@@ -5,6 +5,13 @@ from ClearMap.gui.windows.settingsWindow import create_settings_window
 
 
 def custom_run_options(nextButton, pathClearMap, root):
+    """
+
+    :param nextButton:
+    :param pathClearMap:
+    :param root:
+    :return:
+    """
     runOptionsWindow = tk.Toplevel(root)
     runOptionsWindow.title("Error")
 

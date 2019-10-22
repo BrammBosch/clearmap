@@ -1,5 +1,7 @@
 import json
 import shutil
+
+from ClearMap.gui.tools.killProgram import kill
 from ClearMap.gui.tools.splitCSV import write_landmarks_to_files
 from tkfilebrowser import askopenfilename
 
@@ -18,8 +20,5 @@ def findLandmarks(manualWindow, pathClearMap):
         shutil.copyfile(landmarksDir, pathOutput)
         write_landmarks_to_files(pathClearMap)
     except FileNotFoundError:
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
-            data = json.load(json_file)
-        data['kill'] = True
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
-            json.dump(data, outputFile)
+        kill(pathClearMap)
+

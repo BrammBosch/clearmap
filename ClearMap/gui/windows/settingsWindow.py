@@ -5,6 +5,7 @@ from tkinter import messagebox
 
 from ClearMap.gui.tools.callFile import call_file
 from ClearMap.gui.tools.createFiles import create_files
+from ClearMap.gui.tools.killProgram import kill
 from ClearMap.gui.windows.export import export
 
 
@@ -71,11 +72,8 @@ def create_settings_window(nextButton,root,pathClearMap):
         """
         settingsWindow.destroy()  # close the popup
         nextButton['state'] = 'normal'
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
-            dataKill = json.load(json_file)
-        dataKill['kill'] = True
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFileKillSettings:
-            json.dump(dataKill, outputFileKillSettings)
+        kill(pathClearMap)
+
         listToplevel = []
         for widget in root.winfo_children():
             if isinstance(widget, tk.Toplevel):

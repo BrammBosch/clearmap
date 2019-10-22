@@ -2,13 +2,17 @@ import json
 import os
 import tkinter as tk
 import tkinter.ttk as ttk
+
+from ClearMap.gui.tools.killProgram import kill
 from ClearMap.gui.windows.importer import importer
 from ClearMap.gui.windows.runWindow import create_run_window
 from ClearMap.gui.windows.chooseDirs import choose_dirs
 from ClearMap.gui.tools.usePresets import use_presets
 
 __author__ = "Bram Bosch"
-
+"""
+This is the main gui function, from here all other functions can be called.
+"""
 root = tk.Tk()
 
 root.title("Clearmap")
@@ -44,11 +48,7 @@ def root_quit():
     :return:
     """
     root.destroy()
-    with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as outputFileRunSettingsKill:
-        dataKillRunSettings = json.load(outputFileRunSettingsKill)
-    dataKillRunSettings['kill'] = True
-    with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
-        json.dump(dataKillRunSettings, outputFile)
+    kill(pathClearMap)
 
 
 def run_gui():

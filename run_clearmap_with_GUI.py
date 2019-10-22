@@ -54,6 +54,10 @@ def searchIlastik():
 
 
 def saveLocation():
+    """
+    This function asks for a location where all the local files will be saved.
+    :return:
+    """
     savePath = askopendirname(parent=rootFirstSetup, title="Select the save location folder")
     settingsFileRead = open(maindir + "ClearMap/Settings.py").read()
     if os.path.isdir(re.search(r'(?<=ElastixPath = ")([^"]+)', settingsFileRead).group(0)) and savePath != "":

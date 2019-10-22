@@ -3,10 +3,17 @@ import numpy as np
 from tkfilebrowser import askopenfilename
 import csv
 
-
+from ClearMap.gui.tools.killProgram import kill
 
 
 def cel_detection(importCelWindow, pathClearMap):
+    """
+    This function is called when the user chooses to import their own cel detection
+    :param importCelWindow: This is the toplevel from where the chooser is called and is used as parent for the file
+    chooser
+    :param pathClearMap: This is the path of the gui.
+    :return:
+    """
     cellsDir = askopenfilename(parent=importCelWindow, title="Select the csv file with the detected cells")
 
     try:
@@ -19,8 +26,10 @@ def cel_detection(importCelWindow, pathClearMap):
         for row in reader:
             for h, v in zip(headers, row):
                 column[h].append(v)
-
+        f.close()
         if '"X (px), Center of Geometry"' in column and '"Mean, Intensities #1"' in column:
+            #if this is true then it is most likely an exported file from arivis. If it isn't but these columns still
+            #exist then the outcome should be the same.
             arivis_cel_detection(pathClearMap, column)
 
         else:
@@ -29,14 +38,18 @@ def cel_detection(importCelWindow, pathClearMap):
     except Exception as e:
         print(e)
 
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
-            data = json.load(json_file)
-        data['kill'] = True
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
-            json.dump(data, outputFile)
+        kill(pathClearMap)
 
 
 def arivis_cel_detection(pathClearMap, column):
+    """
+    This function is called when the chosen cel detection file is an arivis file.
+
+    :param pathClearMap: The path of the gui
+    :param column: a dictionary where the keys are the headers of the read csv file, and where the keys are lists of the
+    values in each header column.
+    :return:
+    """
     try:
 
         xValues = [int(float(x)) for x in column['"X (px), Center of Geometry"']]
@@ -56,15 +69,17 @@ def arivis_cel_detection(pathClearMap, column):
 
     except Exception as e:
         print(e)
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
-            data = json.load(json_file)
-        data['kill'] = True
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
-            json.dump(data, outputFile)
+        kill(pathClearMap)
 
 
-def cel_detection_without_int(pathClearMap, cellsDir, **parameter):
 
+def cel_detection_without_int(pathClearMap, cellsDir):
+    """
+    This function is called when the csv file containing cell coordinates is not an arivis file.
+    :param pathClearMap: The path to the gui
+    :param cellsDir: The path to the chosen file.
+    :return:
+    """
     f = open(cellsDir, 'r')
     cellsList = []
     for line in f:
@@ -74,4 +89,4 @@ def cel_detection_without_int(pathClearMap, cellsDir, **parameter):
         cellsList.append(line)
     np.save(pathClearMap + "ClearMap/clearmap_preset_folder/output/cells.npy", np.array(cellsList),
             allow_pickle=True, fix_imports=True)
-
+    f.close()

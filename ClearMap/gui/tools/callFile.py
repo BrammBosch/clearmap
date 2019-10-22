@@ -42,7 +42,6 @@ def call_file(root, pathClearMap):
 
         exec(open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py").read())
 
-    # textVar.set("Done with the current operation")
     if not dataLoaded['kill']:
         if dataLoaded['baseDir'] == pathClearMap + "ClearMap/clearmap_preset_folder/output":
             try:

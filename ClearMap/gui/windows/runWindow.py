@@ -1,6 +1,7 @@
 import json
 import tkinter as tk
 
+from ClearMap.gui.tools.killProgram import kill
 from ClearMap.gui.windows.customRunOptions import custom_run_options
 
 
@@ -88,11 +89,8 @@ def create_run_window(root, pathClearMap, runButtonMain, importButton, presetBut
         importButton['state'] = 'normal'
         presetButton['state'] = 'normal'
         manualButton['state'] = 'normal'
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as outputFileRunSettingsKill:
-            dataKillRunSettings = json.load(outputFileRunSettingsKill)
-        dataKillRunSettings['kill'] = True
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
-            json.dump(dataKillRunSettings, outputFile)
+        kill(pathClearMap)
+
         for widget in root.winfo_children():
             if isinstance(widget, tk.Toplevel):
                 widget.destroy()

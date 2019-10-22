@@ -1,6 +1,9 @@
 import json
 import tkinter as tk
 from ClearMap.gui.tools.findLandmarks import findLandmarks
+from ClearMap.gui.tools.killProgram import kill
+
+
 def manual(root,pathClearMap):
     """
     If the user has selected to use the manual alignment using imageJ a popup window is opened where the user is asked
@@ -34,11 +37,7 @@ Go to the landmarks window -> File -> Export landmarks. """).grid(padx=4, pady=4
         béfore it can run.
         :return:
         """
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
-            data = json.load(json_file)
-        data['kill'] = True
-        with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
-            json.dump(data, outputFile)
+        kill(pathClearMap)
 
         manualWindow.destroy()
 
