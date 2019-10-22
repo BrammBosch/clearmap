@@ -10,6 +10,7 @@ from ClearMap.gui.windows.chooseDirs import choose_dirs
 from ClearMap.gui.tools.usePresets import use_presets
 
 __author__ = "Bram Bosch"
+
 """
 This is the main gui function, from here all other functions can be called.
 """

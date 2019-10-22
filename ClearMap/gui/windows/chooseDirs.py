@@ -8,7 +8,7 @@ from tkinter import messagebox, filedialog
 from ClearMap.errors.customExceptions import *
 
 
-def choose_dirs(root,pathClearMap,runButtonMain):
+def choose_dirs(root, pathClearMap, runButtonMain):
     """
     This function lets the user choose their own directories where all the files will be found.
     It saved all relevant data in the local json file.
@@ -62,6 +62,9 @@ def choose_dirs(root,pathClearMap,runButtonMain):
         try:
             fileProtein = re.sub(r'Z[0-9]{4}', 'Z\\\\d{4}', fileProtein)
             fileAutoFluo = re.sub(r'Z[0-9]{4}', 'Z\\\\d{4}', fileAutoFluo)
+            # These 2 lines search for a file format where the image stack is made up out of separate images where each
+            # has a Z number which corresponds to the Z plane. If this Z number isn't present the program assumes the
+            # stack is saved in a single file.
         except Exception as e:
             print(e)
         print(fileProtein)
