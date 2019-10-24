@@ -1,4 +1,3 @@
-import json
 import tkinter as tk
 from ClearMap.gui.tools.findLandmarks import findLandmarks
 from ClearMap.gui.tools.killProgram import kill

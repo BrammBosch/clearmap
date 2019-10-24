@@ -1,4 +1,3 @@
-import json
 import shutil
 
 from ClearMap.gui.tools.killProgram import kill

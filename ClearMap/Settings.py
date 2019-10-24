@@ -25,7 +25,7 @@ Notes:
 
 # path to elastix installation
 "mark"
-ElastixPath = "/home/bram/Desktop/Jaar_3/donders/elastix";
+ElastixPath = "/home/bram/Desktop/Jaar_3/donders/elasix";
 """str: Absolue path to the elastix installation
 Notes:
     `Elastix Webpage <http://elastix.isi.uu.nl/>`_

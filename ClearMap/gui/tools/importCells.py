@@ -1,4 +1,3 @@
-import json
 import tkinter as tk
 
 from ClearMap.gui.tools.arivisCelDetection import cel_detection

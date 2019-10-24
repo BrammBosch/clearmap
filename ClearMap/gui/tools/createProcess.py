@@ -45,7 +45,6 @@ def create_file_process(pathClearMap):
         finalOutput += heatmap()
         finalOutput += heatmap_weighted()
 
-
     if data['tableBox'] == True:
         finalOutput += table()
         finalOutput += table_weighted()
@@ -115,7 +114,8 @@ io.writePoints(TransformedCellsFile, points);
 """
     return transform
 
-#is maybe useless
+
+# is maybe useless
 def transform_point_coordinates_manual():
     transform = """points = io.readPoints(CorrectionResamplingPointsParameter["pointSource"]);
 points = resamplePoints(**CorrectionResamplingPointsParameter);
@@ -142,6 +142,8 @@ if not isinstance(vox, str):
 voxelizeParameter["weights"] = intensities[:,0].astype(float);
 """
     return heatmapText
+
+
 def heatmap_weighted():
     heatmapWeightedText = """
 vox = voxelize(points, AtlasFile, **voxelizeParameter);

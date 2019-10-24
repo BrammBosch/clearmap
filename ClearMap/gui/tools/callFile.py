@@ -28,21 +28,10 @@ def call_file(root, pathClearMap):
 
     with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt") as json_file:
         dataLoaded = json.load(json_file)
-    if dataLoaded['kill']:
-        print("kill")
-        with open(pathClearMap + 'ClearMap/Scripts/work_dir/process_template.py', 'r') as file:
-            file = file.read()
-        output = "sys.exit()\n" + file
-        processFile = open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py", "w+")
-
-        processFile.write(output)
-
-        exec(open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py").read())
-    else:
-
-        exec(open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py").read())
-
     if not dataLoaded['kill']:
+
+        exec(open(pathClearMap + "ClearMap/Scripts/work_dir/process_template.py").read())
+
         if dataLoaded['baseDir'] == pathClearMap + "ClearMap/clearmap_preset_folder/output":
             try:
                 if messagebox.askyesno("Finished", "Succesfully ran clearmap with the selected settings,"

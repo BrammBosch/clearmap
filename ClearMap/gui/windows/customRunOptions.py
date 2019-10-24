@@ -68,7 +68,7 @@ def custom_run_options(nextButton, pathClearMap, root):
             if os.path.exists(dataRunOptions['baseDir'] + '/intensities.npy'):
                 run = True
             else:
-                textVarRun.set("""You have chosen to skip the celdetection but the heatmap creation needs a intensities.npy file.
+                textVarRun.set("""You have chosen to skip the cell detection but the heatmap creation needs a intensities.npy file.
                         Please copy the files to the output folder or go back and select an alignment option""")
                 dataRunOptions['kill'] = True
                 run = False
@@ -77,7 +77,7 @@ def custom_run_options(nextButton, pathClearMap, root):
             if os.path.exists(dataRunOptions['baseDir'] + '/cells_transformed_to_Atlas.npy'):
                 run = True
             else:
-                textVarRun.set("""You have chosen to skip the celdetection but the heatmap creation needs a cells_transformed_to_Atlas.npy file.
+                textVarRun.set("""You have chosen to skip the alignment but the heatmap creation needs a cells_transformed_to_Atlas.npy file.
                                        Please copy the files to the output folder or go back and select an alignment option""")
                 dataRunOptions['kill'] = True
                 run = False
@@ -86,7 +86,7 @@ def custom_run_options(nextButton, pathClearMap, root):
             if os.path.exists(dataRunOptions['baseDir'] + '/intensities.npy'):
                 run = True
             else:
-                textVarRun.set("""You have chosen to skip the celdetection but the table creation needs a intensities.npy file.
+                textVarRun.set("""You have chosen to skip the cell detection but the table creation needs a intensities.npy file.
                        Please copy the files to the output folder or go back and select an alignment option""")
                 dataRunOptions['kill'] = True
                 run = False
@@ -95,11 +95,14 @@ def custom_run_options(nextButton, pathClearMap, root):
             if os.path.exists(dataRunOptions['baseDir'] + '/cells_transformed_to_Atlas.npy'):
                 run = True
             else:
-                textVarRun.set("""You have chosen to skip the celdetection but the table creation needs a cells_transformed_to_Atlas.npy file.
+                textVarRun.set("""You have chosen to skip the alignment but the table creation needs a cells_transformed_to_Atlas.npy file.
                                        Please copy the files to the output folder or go back and select an alignment option""")
                 dataRunOptions['kill'] = True
                 run = False
-
+        if run and not dataRunOptions['resampleBox'] and not dataRunOptions['cellDetectionBox'] and not dataRunOptions['alignmentBox'] and not dataRunOptions['tableBox'] and not dataRunOptions ['heatmapBox']:
+            textVarRun.set("""You have to atleast pick 1 option""")
+            dataRunOptions['kill'] = True
+            run = False
         with open(pathClearMap + "ClearMap/Scripts/work_dir/savedSettings.txt", "w") as outputFile:
             json.dump(dataRunOptions, outputFile)
         if run:

@@ -15,14 +15,14 @@ with open(maindir + "ClearMap/Settings.py", 'r+') as settingsFileRead:
     try:
         settingsMatchElastix = re.search(b'(?<=ElastixPath = ")([^"]+)', data)
         firstSetupElastix = os.path.isdir(settingsMatchElastix.group(0))
-        #  Find the path of the elastix location and check if it exists.
+        #  Find the path of the elastix location using regex and check if it exists.
 
     except AttributeError:
         firstSetupElastix = False
     try:
         settingsMatchSave = re.search(b'(?<=saveSettings = ")([^"]+)', data)
         firstSetupSave = os.path.isdir(settingsMatchSave.group(0))
-        #  Find the path of the save location and check if it exists.
+        #  Find the path of the save location using regex and check if it exists.
     except AttributeError:
         firstSetupSave = False
 
@@ -115,6 +115,7 @@ if not firstSetupElastix or not firstSetupSave:
 
 
     rootFirstSetup.protocol("WM_DELETE_WINDOW", manual_quit)
+
 from ClearMap.gui.tkinter_gui import run_gui
 
 run_gui()
