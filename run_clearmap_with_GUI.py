@@ -80,10 +80,9 @@ if not firstSetupElastix or not firstSetupSave:
     style.theme_use("clam")
     tk.Label(rootFirstSetup, text="It looks like this is your first time running this program").grid(padx=4, pady=4,
                                                                                                      sticky='ew')
-    tk.Label(rootFirstSetup, text="Please refer to the requirements file for all the downloads").grid(padx=4, pady=4,
-                                                                                                      sticky='ew')
-    tk.Label(rootFirstSetup, text="The path to where elastix is located is mandatory").grid(padx=4, pady=4, sticky='ew')
-    tk.Label(rootFirstSetup, text="A save location is also mandatory").grid(padx=4, pady=4, sticky='ew')
+    #tk.Label(rootFirstSetup, text="Please refer to the requirements file for all the downloads").grid(padx=4, pady=4, sticky='ew')
+    tk.Label(rootFirstSetup, text="The path to where elastix is installed is mandatory").grid(padx=4, pady=4, sticky='ew')
+    #tk.Label(rootFirstSetup, text="A save location is also mandatory").grid(padx=4, pady=4, sticky='ew')
 
     tk.Label(rootFirstSetup, text="The path to ilastik can be left empty if you dont want to use it").grid(padx=4,
                                                                                                            pady=4,
@@ -95,8 +94,8 @@ if not firstSetupElastix or not firstSetupSave:
     pathIlastikButton = tk.Button(rootFirstSetup, text="Search Ilastik", command=searchIlastik)
     pathIlastikButton.grid(padx=4, pady=4, sticky='ew')
 
-    pathSave = tk.Button(rootFirstSetup, text="Set a location for the saved files", command=saveLocation)
-    pathSave.grid(padx=4, pady=4, sticky='ew')
+    #pathSave = tk.Button(rootFirstSetup, text="Set a location for the saved files", command=saveLocation)
+    #pathSave.grid(padx=4, pady=4, sticky='ew')
 
     quitButton = tk.Button(rootFirstSetup, state=tk.DISABLED, text="Run clearmap", command=rootFirstSetup.destroy)
     quitButton.grid(padx=4, pady=4, sticky='ew')
@@ -113,8 +112,10 @@ if not firstSetupElastix or not firstSetupSave:
         rootFirstSetup.destroy()
         sys.exit()
 
-
-    rootFirstSetup.protocol("WM_DELETE_WINDOW", manual_quit)
+    try:
+        rootFirstSetup.protocol("WM_DELETE_WINDOW", manual_quit)
+    except Exception as e:
+        pass
 
 from ClearMap.gui.tkinter_gui import run_gui
 

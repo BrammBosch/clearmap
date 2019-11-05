@@ -12,6 +12,7 @@ See Also:
 
 import os
 import socket
+
 "mark"
 IlastikPath = "/home/bram/Desktop/Jaar_3/donders/ilastik";
 
@@ -25,13 +26,15 @@ Notes:
 
 # path to elastix installation
 "mark"
-ElastixPath = "/home/bram/Desktop/Jaar_3/donders/elasix";
+ElastixPath = "/home/bram/Desktop/Jaar_3/donders/elastix";
 """str: Absolue path to the elastix installation
 Notes:
     `Elastix Webpage <http://elastix.isi.uu.nl/>`_
 """
 
 saveSettings = "/home/bram/Desktop/test";
+
+
 def setup():
     """Setup ClearMap for specific hosts
 
