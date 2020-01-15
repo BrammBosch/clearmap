@@ -30,7 +30,18 @@ def create_file_parameter(pathClearMap):
     finalOutput += atlas_resolution(data)
     finalOutput += path_atlas(data)
     finalOutput += resampling_parameter()
+    finalOutput += correct_illumination(data)
+
+    if data['backgroundRemX'] == None:
+        finalOutput += background_cor_parameter_off(data)
+    else:
+        finalOutput += background_cor_parameter(data)
+    finalOutput += DoG_parameter(data)
+    finalOutput += extended_maxima_parameter()
+    finalOutput += intensity_parameter()
+    finalOutput += detect_cellshape_parameter()
     finalOutput += custom_filters()
+
 
     processFile = open(pathClearMap + "ClearMap/Scripts/work_dir/parameter_file.py", "w+")
 
@@ -108,43 +119,73 @@ def resampling_parameter():
     return resamplingParameter
 
 
+def correct_illumination(data):
+    correctIllumination = """correctIlluminationParameter = {
+    "flatfield": None,
+    "background": None,
+    "scaling": "Mean",
+    "save": None,
+    "verbose": True
+
+}\n"""
+
+    return correctIllumination
+
+def background_cor_parameter_off():
+    backgroundCorParameter = '''removeBackgroundParameter = {
+    "size": None),
+    "save": None,
+    "verbose": True
+}\n'''
+    return backgroundCorParameter
+
+def background_cor_parameter(data):
+    backgroundCorParameter = "removeBackgroundParameter = {"
+    backgroundCorParameter +='"size": (' + data['backgroundRemX'] + ', ' + data['backgroundRemY'] + '),\n'
+    backgroundCorParameter +='''"save": None,
+    "verbose": True
+}\n'''
+    return backgroundCorParameter
+
+def DoG_parameter(data):
+    DoGParameter = """filterDoGParameter = {
+    "size": None,
+    "sigma": None,  
+    "sigma2": None, 
+    "save": None, 
+    "verbose": True  
+}\n"""
+    return DoGParameter
+
+def extended_maxima_parameter():
+    extendedMaximaParameter = """findExtendedMaximaParameter = {
+    "hMax": None,
+    "size": 5,  
+    "threshold": 0,
+    "save": None,
+    "verbose": True 
+}\n"""
+    return extendedMaximaParameter
+
+def intensity_parameter():
+    intesityParameter = """findIntensityParameter = {
+    "method": 'Max',
+    "size": (3, 3, 3)
+}\n"""
+    return intesityParameter
+
+def detect_cellshape_parameter():
+    detectCellShapeParameter = """detectCellShapeParameter = {
+    "threshold": 700,
+    "save": None, 
+    "verbose": True
+}\n"""
+
+    return detectCellShapeParameter
+
 def custom_filters():
     customFilters = """ImageProcessingMethod = "SpotDetection";
-correctIlluminationParameter = {
-        "flatfield": None,  
-        "background": None,
-        "scaling": "Mean",
-        "save": None,  
-        "verbose": True  
-}
-removeBackgroundParameter = {
-        "size": (7, 7),  
-        "save": None, 
-        "verbose": True 
-}
-filterDoGParameter = {
-        "size": None,
-        "sigma": None,  
-        "sigma2": None, 
-        "save": None, 
-        "verbose": True  
-}
-findExtendedMaximaParameter = {
-        "hMax": None,
-        "size": 5,  
-        "threshold": 0,
-        "save": None,
-        "verbose": True 
-}
-findIntensityParameter = {
-        "method": 'Max',
-        "size": (3, 3, 3)
-}
-detectCellShapeParameter = {
-        "threshold": 700,
-        "save": None, 
-        "verbose": True
-}
+
 detectSpotsParameter = {
         "correctIlluminationParameter": correctIlluminationParameter,
         "removeBackgroundParameter": removeBackgroundParameter,
