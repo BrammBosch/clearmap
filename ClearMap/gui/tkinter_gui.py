@@ -3,6 +3,7 @@ import os
 import tkinter as tk
 import tkinter.ttk as ttk
 
+from ClearMap.gui.tools.clearFolder import clear_folder
 from ClearMap.gui.tools.killProgram import kill
 from ClearMap.gui.windows.importer import importer
 from ClearMap.gui.windows.runWindow import create_run_window
@@ -59,12 +60,12 @@ def run_gui():
     :return:
     """
 
-    # folder = pathClearMap + "ClearMap/clearmap_preset_folder/output"
-    # clear_folder(folder)
+    folder = pathClearMap + "ClearMap/clearmap_preset_folder/output"
+    clear_folder(folder)
     # This clears the output folder in the preset.
 
-    # folder = pathClearMap + "ClearMap/Scripts/work_dir"
-    # clear_folder(folder)
+    folder = pathClearMap + "ClearMap/Scripts/work_dir"
+    clear_folder(folder)
     # This empties the work directory before the gui runs
 
     root.mainloop()
